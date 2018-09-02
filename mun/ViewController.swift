@@ -11,6 +11,7 @@ import YAPI
 
 class ViewController: UIViewController {
   
+  private var moonPhaseLabel: UILabel!
   private var moon: MoonView!
   private var dateLabel: UILabel!
   private var datePicker: UIDatePicker!
@@ -19,6 +20,7 @@ class ViewController: UIViewController {
   private let datePickerAlpha: CGFloat = 0.7
   
   private var currentDateShown: Date = Date()
+  private var currentDatePicked: Date = Date()
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -42,13 +44,17 @@ class ViewController: UIViewController {
     
     view.addSubview(moon)
     
+    let phaseLabel = UILabel(frame: CGRect(x: 0, y: moon.frame.minY - 58, width: view.frame.width, height: 50))
+    phaseLabel.textAlignment = .center
+    phaseLabel.textColor = UIColor.lightText
+    phaseLabel.backgroundColor = .clear
+    phaseLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+    moonPhaseLabel = phaseLabel
+    view.addSubview(phaseLabel)
+    
     setupDateView(on: Date())
     
-//    let slider = UISlider(frame: CGRect(x: 0, y: view.frame.height - 80, width: view.frame.width, height: 40))
-//    view.addSubview(slider)
-//    slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
-    
-//    self.retrieveMoonValue(for: nil)
+    retrieveMoonValue(for: nil, dateInPast: false)
   }
   
   func setupDateView(on date: Date) {
@@ -132,7 +138,7 @@ class ViewController: UIViewController {
     }
     else {
       // Close event, get the new date
-      retrieveMoonValue(for: currentDateShown)
+      retrieveMoonValue(for: currentDateShown, dateInPast: currentDateShown < currentDatePicked)
       UIView.animate(withDuration: 0.2,
                      delay: 0,
                      options: [UIViewAnimationOptions.curveEaseOut],
@@ -144,6 +150,7 @@ class ViewController: UIViewController {
         self.datePickerAnimating = false
       })
     }
+    currentDatePicked = currentDateShown
   }
   
   func format(date: Date) -> String {
@@ -157,7 +164,7 @@ class ViewController: UIViewController {
   }
   
   @objc func sliderValueChanged(_ slider: UISlider) {
-    moon.setPercentage(Double(slider.value), animated: false)
+    moon.setPercentage(Double(slider.value), animated: false, forward: true)
   }
 
   override func didReceiveMemoryWarning() {
@@ -165,7 +172,7 @@ class ViewController: UIViewController {
     // Dispose of any resources that can be recreated.
   }
   
-  func retrieveMoonValue(for date: Date?) {
+  func retrieveMoonValue(for date: Date?, dateInPast: Bool) {
     let request = MoonPhaseRequest(date: date)
     request.send { result in
       guard let response = result.intoOk() else {
@@ -179,8 +186,9 @@ class ViewController: UIViewController {
       }
       
       DispatchQueue.main.async {
-        self.moon.setPercentage(moon.phase.phase, animated: true)
+        self.moon.setPercentage(moon.phase.phase, animated: true, forward: dateInPast)
         self.moon.setAngle(CGFloat(moon.phase.angle), animated: true)
+        self.moonPhaseLabel.text = moon.phase.name
       }
     }
   }

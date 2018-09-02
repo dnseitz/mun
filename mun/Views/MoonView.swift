@@ -14,34 +14,31 @@ public class MoonView: UIView {
   private let initialControlX: CGFloat
   private let minControlX: CGFloat
   private var currentControlX: CGFloat
-  private var destination: (waxing: Bool, controlX: CGFloat)?
-//  private var animation: CABasicAnimation
+  private var destination: (waning: Bool, controlX: CGFloat)?
   private var currentPath: UIBezierPath!
   private var nextPath: UIBezierPath!
-//  private var path1: UIBezierPath
-//  private var path2: UIBezierPath
   private var shapeLayer: CAShapeLayer?
-  private let defaultDuration: CFTimeInterval = 0.2
+  private let defaultDuration: CFTimeInterval = 0.1
   
   private let imageView: UIImageView
   
+  private var forward: Bool = true
+  private var waning: Bool = false
+  
   private var maskLayer: CAShapeLayer? {
     return shapeLayer?.mask as? CAShapeLayer
-//    return shapeLayer
   }
   
   public override init(frame: CGRect) {
     let halfWidth = frame.size.width / 2
     let halfHeight = frame.size.height / 2
-    let circleControlPointOffset: CGFloat = 40
+    let circleControlPointOffset: CGFloat = 42
     
     imageView = UIImageView(frame: frame)
     
     initialControlX = 2 * halfWidth + circleControlPointOffset
     minControlX = -circleControlPointOffset
-    currentControlX = initialControlX
-//    animation = CABasicAnimation(keyPath: "path")
-//    shapeLayer = CAShapeLayer()
+    currentControlX = minControlX
     
     super.init(frame: frame)
     
@@ -50,19 +47,13 @@ public class MoonView: UIView {
     self.addSubview(imageView)
     imageView.image = #imageLiteral(resourceName: "moon-png-no-background-15")
 
-//    let cp1y: CGFloat = -halfHeight
-//    let cp2y: CGFloat = frame.size.height + halfHeight
-//    let path1 = path(controlPoint: CGPoint(x: currentControlX, y: halfHeight))
     currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
                      controlPoint2: CGPoint(x: currentControlX, y: frame.height),
-                       waxing: false)
-//    let path2 = path(controlPoint: CGPoint(x: -halfWidth, y: halfHeight))
-//    let path2 = path(controlPoint1: CGPoint(x: -40, y: 0),
-//                     controlPoint2: CGPoint(x: -40, y: frame.height))
+                       waning: false)
     currentControlX -= 10
     nextPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
                      controlPoint2: CGPoint(x: currentControlX, y: frame.height),
-                    waxing: false)
+                    waning: false)
 
     let shapeLayer = CAShapeLayer()
     self.shapeLayer = shapeLayer
@@ -73,31 +64,43 @@ public class MoonView: UIView {
     let maskLayer = CAShapeLayer()
     maskLayer.path = currentPath.cgPath
     maskLayer.fillColor = UIColor.black.cgColor
-    
+    // TODO: Maybe mask out here with gradient to blend shadow a little
+
     shapeLayer.mask = maskLayer
     shapeLayer.frame = layer.bounds
     shapeLayer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
     
     layer.addSublayer(shapeLayer)
   }
-  
-  func setAngle(_ radians: CGFloat) {
+
+  private var currentAngleInRadians: CGFloat = 0.0
+  func setAngle(_ radians: CGFloat, animated: Bool) {
     guard let shapeLayer = shapeLayer else { return }
+    
     var transform = CATransform3DIdentity
     transform = CATransform3DRotate(transform, radians, 0, 0, -1)
     shapeLayer.transform = transform
+    
+//    if animated {
+//      let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation")
+//      rotationAnimation.fromValue = currentAngleInRadians
+//      rotationAnimation.duration = 0.5
+//      shapeLayer.add(rotationAnimation, forKey: "animateRotation")
+//    }
+    
+    currentAngleInRadians = radians
   }
   
-  func setPercentage(_ percentage: Double, animated: Bool) {
+  func setPercentage(_ percentage: Double, animated: Bool, forward: Bool) {
     let actualPercentage = max(min(percentage, 1), 0)
     
     let totalValues: Double = Double(initialControlX) - Double(minControlX)
     let value = actualPercentage * (2 * totalValues) + -totalValues
     
-    let waxing = value > 0
+    let waning = value > 0
 
     let correctedValue: Double
-    if waxing == true {
+    if waning == true {
       correctedValue = value + Double(minControlX)
     }
     else {
@@ -107,29 +110,36 @@ public class MoonView: UIView {
     }
 
     if animated {
-      animate(to: CGFloat(correctedValue), waxing: waxing)
+      animate(to: CGFloat(correctedValue), waning: waning, forward: forward)
     }
     else {
       currentControlX = CGFloat(correctedValue)
       maskLayer?.path = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
                              controlPoint2: CGPoint(x: currentControlX, y: frame.height),
-                             waxing: waxing).cgPath
+                             waning: waning).cgPath
     }
   }
   
-  private func animate(to destinationControlX: CGFloat, waxing: Bool) {
+  private func animate(to destinationControlX: CGFloat, waning: Bool, forward: Bool) {
+    self.forward = forward
     guard self.destination == nil else {
       // Just update the value and get out
-      self.destination = (waxing: waxing, controlX: destinationControlX)
+      self.destination = (waning: waning, controlX: destinationControlX)
       return
     }
-    self.destination = (waxing: waxing, controlX: destinationControlX)
-    let animation = self.animation(from: currentPath, to: nextPath, duration: defaultDuration)
+    self.destination = (waning: waning, controlX: destinationControlX)
+    let nextControlX = forward ? currentControlX - 10 : currentControlX + 10
+    nextPath = path(controlPoint1: CGPoint(x: nextControlX, y: 0),
+                    controlPoint2: CGPoint(x: nextControlX, y: frame.height),
+                    // This is different on purpose so we can animate to the
+                    // correct next path in case the waning switch changes in the animation
+                    waning: self.waning)
+    let animation = self.animation(from: currentPath, to: nextPath, duration: defaultDuration, timingBehavior: .linear)
     
     maskLayer?.add(animation, forKey: "animatePath")
   }
   
-  func path(controlPoint1: CGPoint, controlPoint2: CGPoint, waxing: Bool = true) -> UIBezierPath {
+  func path(controlPoint1: CGPoint, controlPoint2: CGPoint, waning: Bool = true) -> UIBezierPath {
     let path = UIBezierPath()
     let height = frame.height + 2
     let halfWidth = frame.size.width / 2
@@ -142,7 +152,7 @@ public class MoonView: UIView {
                 radius: halfHeight,
                 startAngle: CGFloat(90).toRadians(),
                 endAngle: CGFloat(270).toRadians(),
-                clockwise: waxing)
+                clockwise: waning)
     
     return path
   }
@@ -165,53 +175,59 @@ public class MoonView: UIView {
   }
 }
 
-private var count: Int = 0
-private var didSwitch: Bool = false
-private var waxing: Bool = false
-
 extension MoonView: CAAnimationDelegate {
   public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-    print("Animation completed")
     guard flag else {
       return assertionFailure("Animation failed to finish")
     }
-    let shouldSwitch = currentControlX < minControlX
+    let shouldSwitch = forward ? currentControlX <= minControlX : currentControlX >= initialControlX
     if shouldSwitch == true {
-      waxing = !waxing
+      waning = !waning
       
-      currentControlX = initialControlX
+      currentControlX = forward ? initialControlX : minControlX
       currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
                          controlPoint2: CGPoint(x: currentControlX, y: frame.height),
-                         waxing: waxing)
+                         waning: waning)
     }
     else {
       currentPath = nextPath
     }
+
     if let destination = destination {
-      if currentControlX <= destination.controlX && waxing == destination.waxing {
+      let metDestination = forward ?
+        currentControlX <= destination.controlX :
+        currentControlX >= destination.controlX
+      if metDestination && waning == destination.waning {
         self.destination = nil
         maskLayer?.path = currentPath.cgPath
-        maskLayer?.removeAllAnimations()
+        maskLayer?.removeAnimation(forKey: "animatePath")
         return
       }
     }
-    currentControlX -= 10
+    
+    currentControlX -= forward ? 10 : -10
     if let destination = destination {
-      if currentControlX < destination.controlX && waxing == destination.waxing {
+      let passedDestination = forward ?
+        currentControlX < destination.controlX :
+        currentControlX > destination.controlX
+
+      if passedDestination && waning == destination.waning {
         currentControlX = destination.controlX
       }
     }
     nextPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
                     controlPoint2: CGPoint(x: currentControlX, y: frame.height),
-                    waxing: waxing)
+                    waning: waning)
     maskLayer?.path = currentPath.cgPath
     
     let nextAnimation = animation(from: currentPath, to: nextPath, duration: defaultDuration, timingBehavior: .linear)
 
-    maskLayer?.removeAllAnimations()
+    maskLayer?.removeAnimation(forKey: "animatePath")
     maskLayer?.add(nextAnimation, forKey: "animatePath")
+  }
+  
+  private func handleRotationAnimation() {
     
-    count += 1
   }
   
   private enum TimingBehavior {
