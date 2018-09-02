@@ -14,6 +14,15 @@
 		08369307213338ED0000AE78 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 08369305213338ED0000AE78 /* LaunchScreen.storyboard */; };
 		08369312213338ED0000AE78 /* munTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369311213338ED0000AE78 /* munTests.swift */; };
 		0836931D213338ED0000AE78 /* munUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0836931C213338ED0000AE78 /* munUITests.swift */; };
+		0836932C213AD7140000AE78 /* MoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0836932B213AD7140000AE78 /* MoonView.swift */; };
+		0836933A213B38450000AE78 /* YAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08369334213B382C0000AE78 /* YAPI.framework */; };
+		0836933B213B38900000AE78 /* YAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08369334213B382C0000AE78 /* YAPI.framework */; };
+		0836933C213B38900000AE78 /* YAPI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 08369334213B382C0000AE78 /* YAPI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		08369375213B3B630000AE78 /* MoonPhaseRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369374213B3B630000AE78 /* MoonPhaseRequest.swift */; };
+		08369378213B3B7D0000AE78 /* MoonPhaseResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369377213B3B7D0000AE78 /* MoonPhaseResponse.swift */; };
+		0836937A213B6B820000AE78 /* OAuthSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08369379213B6B820000AE78 /* OAuthSwift.framework */; };
+		0836937B213B6B9F0000AE78 /* OAuthSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08369379213B6B820000AE78 /* OAuthSwift.framework */; };
+		0836937C213B6B9F0000AE78 /* OAuthSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 08369379213B6B820000AE78 /* OAuthSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,7 +40,50 @@
 			remoteGlobalIDString = 083692F8213338EA0000AE78;
 			remoteInfo = mun;
 		};
+		08369333213B382C0000AE78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0836932D213B382B0000AE78 /* YAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 083C5E311D77280900132923;
+			remoteInfo = YAPI;
+		};
+		08369335213B382C0000AE78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0836932D213B382B0000AE78 /* YAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 083C5E3B1D77280A00132923;
+			remoteInfo = YAPITests;
+		};
+		08369337213B382C0000AE78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0836932D213B382B0000AE78 /* YAPI.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 081496A81D99CFFE007776AE;
+			remoteInfo = YAPIDemo;
+		};
+		0836933D213B38900000AE78 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0836932D213B382B0000AE78 /* YAPI.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 083C5E301D77280900132923;
+			remoteInfo = YAPI;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0836933F213B38900000AE78 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0836937C213B6B9F0000AE78 /* OAuthSwift.framework in Embed Frameworks */,
+				0836933C213B38900000AE78 /* YAPI.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		083692F9213338EA0000AE78 /* mun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mun.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,6 +99,11 @@
 		08369318213338ED0000AE78 /* munUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = munUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0836931C213338ED0000AE78 /* munUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = munUITests.swift; sourceTree = "<group>"; };
 		0836931E213338ED0000AE78 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0836932B213AD7140000AE78 /* MoonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonView.swift; sourceTree = "<group>"; };
+		0836932D213B382B0000AE78 /* YAPI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YAPI.xcodeproj; path = YAPI/YAPI.xcodeproj; sourceTree = SOURCE_ROOT; };
+		08369374213B3B630000AE78 /* MoonPhaseRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPhaseRequest.swift; sourceTree = "<group>"; };
+		08369377213B3B7D0000AE78 /* MoonPhaseResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPhaseResponse.swift; sourceTree = "<group>"; };
+		08369379213B6B820000AE78 /* OAuthSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OAuthSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +111,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0836937A213B6B820000AE78 /* OAuthSwift.framework in Frameworks */,
+				0836933A213B38450000AE78 /* YAPI.framework in Frameworks */,
+				0836937B213B6B9F0000AE78 /* OAuthSwift.framework in Frameworks */,
+				0836933B213B38900000AE78 /* YAPI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +142,7 @@
 				08369310213338ED0000AE78 /* munTests */,
 				0836931B213338ED0000AE78 /* munUITests */,
 				083692FA213338EA0000AE78 /* Products */,
+				08369339213B38450000AE78 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -97,6 +159,10 @@
 		083692FB213338EA0000AE78 /* mun */ = {
 			isa = PBXGroup;
 			children = (
+				08369376213B3B6C0000AE78 /* Responses */,
+				08369373213B3B3A0000AE78 /* Requests */,
+				0836932D213B382B0000AE78 /* YAPI.xcodeproj */,
+				0836932A213AD7010000AE78 /* Views */,
 				083692FC213338EA0000AE78 /* AppDelegate.swift */,
 				083692FE213338EA0000AE78 /* ViewController.swift */,
 				08369300213338EA0000AE78 /* Main.storyboard */,
@@ -125,6 +191,48 @@
 			path = munUITests;
 			sourceTree = "<group>";
 		};
+		0836932A213AD7010000AE78 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0836932B213AD7140000AE78 /* MoonView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		0836932E213B382B0000AE78 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				08369334213B382C0000AE78 /* YAPI.framework */,
+				08369336213B382C0000AE78 /* YAPITests.xctest */,
+				08369338213B382C0000AE78 /* YAPIDemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		08369339213B38450000AE78 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				08369379213B6B820000AE78 /* OAuthSwift.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		08369373213B3B3A0000AE78 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+				08369374213B3B630000AE78 /* MoonPhaseRequest.swift */,
+			);
+			path = Requests;
+			sourceTree = "<group>";
+		};
+		08369376213B3B6C0000AE78 /* Responses */ = {
+			isa = PBXGroup;
+			children = (
+				08369377213B3B7D0000AE78 /* MoonPhaseResponse.swift */,
+			);
+			path = Responses;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -135,10 +243,12 @@
 				083692F5213338EA0000AE78 /* Sources */,
 				083692F6213338EA0000AE78 /* Frameworks */,
 				083692F7213338EA0000AE78 /* Resources */,
+				0836933F213B38900000AE78 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0836933E213B38900000AE78 /* PBXTargetDependency */,
 			);
 			name = mun;
 			productName = mun;
@@ -215,6 +325,12 @@
 			mainGroup = 083692F0213338EA0000AE78;
 			productRefGroup = 083692FA213338EA0000AE78 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0836932E213B382B0000AE78 /* Products */;
+					ProjectRef = 0836932D213B382B0000AE78 /* YAPI.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				083692F8213338EA0000AE78 /* mun */,
@@ -223,6 +339,30 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		08369334213B382C0000AE78 /* YAPI.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = YAPI.framework;
+			remoteRef = 08369333213B382C0000AE78 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		08369336213B382C0000AE78 /* YAPITests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = YAPITests.xctest;
+			remoteRef = 08369335213B382C0000AE78 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		08369338213B382C0000AE78 /* YAPIDemo.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = YAPIDemo.app;
+			remoteRef = 08369337213B382C0000AE78 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		083692F7213338EA0000AE78 /* Resources */ = {
@@ -256,6 +396,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08369375213B3B630000AE78 /* MoonPhaseRequest.swift in Sources */,
+				08369378213B3B7D0000AE78 /* MoonPhaseResponse.swift in Sources */,
+				0836932C213AD7140000AE78 /* MoonView.swift in Sources */,
 				083692FF213338EA0000AE78 /* ViewController.swift in Sources */,
 				083692FD213338EA0000AE78 /* AppDelegate.swift in Sources */,
 			);
@@ -289,6 +432,11 @@
 			isa = PBXTargetDependency;
 			target = 083692F8213338EA0000AE78 /* mun */;
 			targetProxy = 08369319213338ED0000AE78 /* PBXContainerItemProxy */;
+		};
+		0836933E213B38900000AE78 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = YAPI;
+			targetProxy = 0836933D213B38900000AE78 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -429,6 +577,7 @@
 		08369322213338ED0000AE78 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YP6LAQGWJ4;
@@ -447,6 +596,7 @@
 		08369323213338ED0000AE78 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YP6LAQGWJ4;
