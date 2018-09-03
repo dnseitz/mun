@@ -14,8 +14,8 @@ struct NotImplementedError: Error {
 }
 
 struct Moon: Decodable {
-//  let riseISO: Date?
-//  let setISO: Date?
+  let riseISO: Date?
+  let setISO: Date?
 //  let transitISO: Date?
 //  let underfootISO: Date?
   let phase: MoonPhase
@@ -41,6 +41,7 @@ struct MoonPhase: Decodable {
 class MoonPhaseResponse: Response {
   required init(withJSON data: [String : AnyObject]) throws {
     let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .formatted(Formatter.iso8601)
     let response = data["response"] as? [[String: Any]]
     guard let moons = response?.compactMap({ $0["moon"] as? [String: Any] }) else {
       throw ParseError.missing(field: "moon")
@@ -61,4 +62,15 @@ class MoonPhaseResponse: Response {
   
   var error: APIError?
   let result: [Moon]
+}
+
+private extension Formatter {
+  static let iso8601: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.calendar = Calendar(identifier: .iso8601)
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+    return formatter
+  }()
 }

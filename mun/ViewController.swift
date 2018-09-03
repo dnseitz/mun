@@ -11,6 +11,8 @@ import YAPI
 
 class ViewController: UIViewController {
   
+  private var moonLabel1: UILabel!
+  private var moonLabel2: UILabel!
   private var moonPhaseLabel: UILabel!
   private var moon: MoonView!
   private var dateLabel: UILabel!
@@ -52,6 +54,20 @@ class ViewController: UIViewController {
     moonPhaseLabel = phaseLabel
     view.addSubview(phaseLabel)
     
+    let moonLabel1 = UILabel(frame: CGRect(x: 0, y: phaseLabel.frame.minY - 34, width: view.frame.width, height: 30))
+    moonLabel1.textAlignment = .center
+    moonLabel1.textColor = .lightText
+    moonLabel1.backgroundColor = .clear
+    self.moonLabel1 = moonLabel1
+    view.addSubview(moonLabel1)
+    
+    let moonLabel2 = UILabel(frame: CGRect(x: 0, y: moonLabel1.frame.minY - 34, width: view.frame.width, height: 30))
+    moonLabel2.textAlignment = .center
+    moonLabel2.textColor = .lightText
+    moonLabel2.backgroundColor = .clear
+    self.moonLabel2 = moonLabel2
+    view.addSubview(moonLabel2)
+    
     setupDateView(on: Date())
     
     retrieveMoonValue(for: nil, dateInPast: false)
@@ -90,7 +106,7 @@ class ViewController: UIViewController {
     // Date Picker
     let datePicker = UIDatePicker(frame: CGRect(x: 0, y: containerView.frame.maxY + 4, width: view.frame.width, height: datePickerHeight))
     datePicker.backgroundColor = UIColor.lightGray.withAlphaComponent(datePickerAlpha)
-    datePicker.datePickerMode = .date
+    datePicker.datePickerMode = .dateAndTime
     datePicker.addTarget(self, action: #selector(dateDidChange(_:)), for: UIControlEvents.valueChanged)
     
     // blur edges
@@ -153,11 +169,11 @@ class ViewController: UIViewController {
     currentDatePicked = currentDateShown
   }
   
-  func format(date: Date) -> String {
+  func format(date: Date, withTime: Bool = true, withDate: Bool = true) -> String {
     let formatter = DateFormatter()
     
-    formatter.dateStyle = .medium
-    formatter.timeStyle = .none
+    formatter.dateStyle = withDate ? .medium : .none
+    formatter.timeStyle = withTime ? .short : .none
     formatter.locale = Locale.autoupdatingCurrent
     
     return formatter.string(from: date)
@@ -189,6 +205,26 @@ class ViewController: UIViewController {
         self.moon.setPercentage(moon.phase.phase, animated: true, forward: dateInPast)
         self.moon.setAngle(CGFloat(moon.phase.angle), animated: true)
         self.moonPhaseLabel.text = moon.phase.name
+        
+        
+        if let riseDate = moon.riseISO, let setDate = moon.setISO {
+          let moonRiseText = "Moon rises at \(self.format(date: riseDate, withDate: false))"
+          let moonSetText = "Moon sets at \(self.format(date: setDate, withDate: false))"
+          self.moonLabel2.text = riseDate < setDate ? moonRiseText : moonSetText
+          self.moonLabel1.text = riseDate < setDate ? moonSetText : moonRiseText
+        }
+        else if let riseDate = moon.riseISO {
+          self.moonLabel2.text = nil
+          self.moonLabel1.text = "Moon rises at \(self.format(date: riseDate, withDate: false))"
+        }
+        else if let setDate = moon.setISO {
+          self.moonLabel2.text = nil
+          self.moonLabel1.text = "Moon sets at \(self.format(date: setDate, withDate: false))"
+        }
+        else {
+          self.moonLabel2.text = nil
+          self.moonLabel1.text = nil
+        }
       }
     }
   }

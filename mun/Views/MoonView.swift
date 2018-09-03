@@ -18,7 +18,7 @@ public class MoonView: UIView {
   private var currentPath: UIBezierPath!
   private var nextPath: UIBezierPath!
   private var shapeLayer: CAShapeLayer?
-  private let defaultDuration: CFTimeInterval = 0.1
+  private let defaultDuration: CFTimeInterval = 0.15
   
   private let imageView: UIImageView
   
@@ -77,9 +77,18 @@ public class MoonView: UIView {
   func setAngle(_ radians: CGFloat, animated: Bool) {
     guard let shapeLayer = shapeLayer else { return }
     
-    var transform = CATransform3DIdentity
-    transform = CATransform3DRotate(transform, radians, 0, 0, -1)
-    shapeLayer.transform = transform
+    if animated {
+      UIView.animate(withDuration: 0.5) {
+        var transform = CATransform3DIdentity
+        transform = CATransform3DRotate(transform, radians, 0, 0, -1)
+        shapeLayer.transform = transform
+      }
+    }
+    else {
+      var transform = CATransform3DIdentity
+      transform = CATransform3DRotate(transform, radians, 0, 0, -1)
+      shapeLayer.transform = transform
+    }
     
 //    if animated {
 //      let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation")
@@ -128,13 +137,14 @@ public class MoonView: UIView {
       return
     }
     self.destination = (waning: waning, controlX: destinationControlX)
-    let nextControlX = forward ? currentControlX - 10 : currentControlX + 10
+    // There's a weird pause after the first animation that is not repeated in subsequent animations, this just kicks off the other animations by animating in place
+    let nextControlX: CGFloat = currentControlX
     nextPath = path(controlPoint1: CGPoint(x: nextControlX, y: 0),
                     controlPoint2: CGPoint(x: nextControlX, y: frame.height),
                     // This is different on purpose so we can animate to the
                     // correct next path in case the waning switch changes in the animation
                     waning: self.waning)
-    let animation = self.animation(from: currentPath, to: nextPath, duration: defaultDuration, timingBehavior: .linear)
+    let animation = self.animation(from: currentPath, to: nextPath, duration: 0, timingBehavior: .linear)
     
     maskLayer?.add(animation, forKey: "animatePath")
   }
