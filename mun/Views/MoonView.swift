@@ -76,7 +76,8 @@ public class MoonView: UIView {
   private var currentAngleInRadians: CGFloat = 0.0
   func setAngle(_ radians: CGFloat, animated: Bool) {
     guard let shapeLayer = shapeLayer else { return }
-    
+    // Because when I built the view I accidentally did it backwards :-)
+    let radians = radians + CGFloat(Double.pi)
     if animated {
       UIView.animate(withDuration: 0.5) {
         var transform = CATransform3DIdentity
@@ -100,7 +101,7 @@ public class MoonView: UIView {
     currentAngleInRadians = radians
   }
   
-  func setPercentage(_ percentage: Double, animated: Bool, forward: Bool) {
+  func setPercentage(_ percentage: Double, animated: Bool, forward: Bool, shouldForceRotation: Bool = false) {
     let actualPercentage = max(min(percentage, 1), 0)
     
     let totalValues: Double = Double(initialControlX) - Double(minControlX)
@@ -119,6 +120,7 @@ public class MoonView: UIView {
     }
 
     if animated {
+      forcedRotation = shouldForceRotation
       animate(to: CGFloat(correctedValue), waning: waning, forward: forward)
     }
     else {
@@ -185,6 +187,9 @@ public class MoonView: UIView {
   }
 }
 
+private var needsFullRotation: Bool = false
+private var forcedRotation: Bool = false
+
 extension MoonView: CAAnimationDelegate {
   public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
     guard flag else {
@@ -193,6 +198,7 @@ extension MoonView: CAAnimationDelegate {
     let shouldSwitch = forward ? currentControlX <= minControlX : currentControlX >= initialControlX
     if shouldSwitch == true {
       waning = !waning
+      forcedRotation = false
       
       currentControlX = forward ? initialControlX : minControlX
       currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
@@ -204,9 +210,10 @@ extension MoonView: CAAnimationDelegate {
     }
 
     if let destination = destination {
-      let metDestination = forward ?
-        currentControlX <= destination.controlX :
-        currentControlX >= destination.controlX
+      needsFullRotation = forward ?
+        currentControlX < destination.controlX :
+        currentControlX > destination.controlX
+      let metDestination = currentControlX == destination.controlX
       if metDestination && waning == destination.waning {
         self.destination = nil
         maskLayer?.path = currentPath.cgPath
@@ -221,7 +228,7 @@ extension MoonView: CAAnimationDelegate {
         currentControlX < destination.controlX :
         currentControlX > destination.controlX
 
-      if passedDestination && waning == destination.waning {
+      if passedDestination && waning == destination.waning && needsFullRotation == false && forcedRotation == false {
         currentControlX = destination.controlX
       }
     }

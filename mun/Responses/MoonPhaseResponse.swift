@@ -47,13 +47,10 @@ class MoonPhaseResponse: Response {
       throw ParseError.missing(field: "moon")
     }
     
-//    self.error = try GooglePlaceSearchResponse.parseError(from: data)
-    
     do {
       
       self.result = try decoder.decode(Array<Moon>.self,
                                        from: JSONSerialization.data(withJSONObject: moons as Any))
-//      self.nextPageToken = try? data.parseParam(key: Params.next_page_token)
     }
     catch {
       throw ParseError.decoderFailed(cause: error)
@@ -64,7 +61,7 @@ class MoonPhaseResponse: Response {
   let result: [Moon]
 }
 
-private extension Formatter {
+extension Formatter {
   static let iso8601: DateFormatter = {
     let formatter = DateFormatter()
     formatter.calendar = Calendar(identifier: .iso8601)

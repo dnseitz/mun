@@ -11,9 +11,30 @@ import YAPI
 
 class ViewController: UIViewController {
   
+  private lazy var phaseLabelBoundingBox: UIView = {
+    let boundingBox = UIView()
+    boundingBox.layer.borderColor = UIColor.lightGray.cgColor
+    boundingBox.layer.borderWidth = 1.5
+    
+    boundingBox.isUserInteractionEnabled = false
+    
+    boundingBox.addSubview(phaseActivityIndicator)
+    
+    return boundingBox
+  }()
+  
+  private var shouldForceRotation: Bool = false
+  
+  private var phaseActivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+  private var dateActivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+  
   private var moonLabel1: UILabel!
   private var moonLabel2: UILabel!
   private var moonPhaseLabel: UILabel!
+  private var phasePicker: PhasePickerView!
+  private var phasePickerAnimating: Bool = false
+  private var phasePickerAlpha: CGFloat = 0.9
+
   private var moon: MoonView!
   private var dateLabel: UILabel!
   private var datePicker: UIDatePicker!
@@ -21,9 +42,12 @@ class ViewController: UIViewController {
   private let datePickerHeight: CGFloat = 160
   private let datePickerAlpha: CGFloat = 0.7
   
-  private var currentDateShown: Date = Date()
+  private var currentDateShown: Date = Date() {
+    didSet {
+      dateLabel.text = format(date: currentDateShown)
+    }
+  }
   private var currentDatePicked: Date = Date()
-
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view, typically from a nib.
@@ -51,7 +75,26 @@ class ViewController: UIViewController {
     phaseLabel.textColor = UIColor.lightText
     phaseLabel.backgroundColor = .clear
     phaseLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+    
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(phaseWasTapped))
+    phaseLabel.addGestureRecognizer(tapGesture)
+    phaseLabel.isUserInteractionEnabled = true
+  
     moonPhaseLabel = phaseLabel
+    
+    let picker = PhasePickerView(frame: CGRect(x: 0, y: phaseLabel.frame.maxY + 4, width: view.frame.width, height: datePickerHeight))
+    picker.backgroundColor = UIColor.lightGray.withAlphaComponent(phasePickerAlpha)
+//    picker.backgroundColor = UIColor.clear
+//    picker.layer.addSublayer(createHorizontalGradientLayer(with: picker.bounds))
+//    picker.layer.mask = createVerticalGradientLayer(with: picker.bounds)
+    picker.layer.mask = createHorizontalGradientLayer(with: picker.bounds)
+//    picker.layer.mask?.mask = createVerticalGradientLayer(with: picker.bounds)
+
+    phasePicker = picker
+    view.addSubview(picker)
+    picker.frame.size.height = 0
+    picker.setNeedsLayout()
+
     view.addSubview(phaseLabel)
     
     let moonLabel1 = UILabel(frame: CGRect(x: 0, y: phaseLabel.frame.minY - 34, width: view.frame.width, height: 30))
@@ -71,6 +114,28 @@ class ViewController: UIViewController {
     setupDateView(on: Date())
     
     retrieveMoonValue(for: nil, dateInPast: false)
+  }
+  
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    
+    phaseLabelBoundingBox.removeFromSuperview()
+    
+    let boundingRect = moonPhaseLabel.textRect(forBounds: moonPhaseLabel.bounds, limitedToNumberOfLines: 1)
+    phaseLabelBoundingBox.frame = CGRect(x: boundingRect.origin.x - 5,
+                                         y: moonPhaseLabel.frame.origin.y,
+                                         width: boundingRect.width + 10,
+                                         height: moonPhaseLabel.frame.height)
+    
+    let width = phaseLabelBoundingBox.frame.width
+    let height = phaseLabelBoundingBox.frame.height
+    phaseActivityIndicator.frame = CGRect(x: 0,
+                                          y: 0,
+                                          width: width,
+                                          height: height)
+    phaseActivityIndicator.hidesWhenStopped = true
+    
+    view.addSubview(phaseLabelBoundingBox)
   }
   
   func setupDateView(on date: Date) {
@@ -95,6 +160,14 @@ class ViewController: UIViewController {
     dateLabel.textColor = UIColor.lightText
     dateLabel.layer.borderWidth = 1.5
     dateLabel.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.5).cgColor
+    
+    dateActivityIndicator.frame = CGRect(x: 0,
+                                         y: 0,
+                                         width: dateLabel.frame.width,
+                                         height: dateLabel.frame.height)
+    
+    dateLabel.addSubview(dateActivityIndicator)
+    dateActivityIndicator.hidesWhenStopped = true
     
     self.dateLabel = dateLabel
     
@@ -121,8 +194,8 @@ class ViewController: UIViewController {
     let gradientLayer = CAGradientLayer()
     gradientLayer.frame = frame
     gradientLayer.colors = [UIColor.clear.cgColor,
-                            UIColor.black.cgColor,
-                            UIColor.black.cgColor,
+                            UIColor.lightGray.cgColor,
+                            UIColor.lightGray.cgColor,
                             UIColor.clear.cgColor]
     gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
     gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
@@ -131,9 +204,49 @@ class ViewController: UIViewController {
     return gradientLayer
   }
   
+  func createVerticalGradientLayer(with frame: CGRect) -> CAGradientLayer {
+    let gradientLayer = CAGradientLayer()
+    gradientLayer.frame = frame
+    gradientLayer.colors = [UIColor.black.cgColor,
+                            UIColor.black.cgColor,
+                            UIColor.clear.cgColor]
+    gradientLayer.locations = [0, 0.5, 1]
+    
+    return gradientLayer
+  }
+  
   @objc func dateDidChange(_ datePicker: UIDatePicker) {
     currentDateShown = datePicker.date
-    dateLabel.text = format(date: currentDateShown)
+  }
+  
+  @objc func phaseWasTapped() {
+    guard phasePickerAnimating == false else {
+      return
+    }
+    phasePickerAnimating = true
+    
+    if phasePicker.frame.height == 0 {
+      phasePicker.defaultValue = moonPhaseLabel.text?.capitalized
+      UIView.animate(withDuration: 0.2, animations: {
+        self.phasePicker.alpha = self.phasePickerAlpha
+        self.phasePicker.frame.size.height = self.datePickerHeight
+      }) { completed in
+        self.phasePickerAnimating = false
+      }
+    }
+    else {
+      retreiveNextPhase(phasePicker.selectedValue)
+      UIView.animate(withDuration: 0.2,
+                     delay: 0,
+                     options: [UIViewAnimationOptions.curveEaseOut],
+                     animations: {
+                      self.phasePicker.alpha = 0
+                      self.phasePicker.frame.size.height = 0
+                      
+      }, completion: { (completed) in
+        self.phasePickerAnimating = false
+      })
+    }
   }
   
   @objc func dateWasTapped() {
@@ -182,15 +295,68 @@ class ViewController: UIViewController {
   @objc func sliderValueChanged(_ slider: UISlider) {
     moon.setPercentage(Double(slider.value), animated: false, forward: true)
   }
+  
+  func selectedPhase() -> PhaseChoice {
+    guard let text = moonPhaseLabel.text else { return .default }
+    switch text.lowercased() {
+    case "new moon":
+      return .nextNew
+    case "first quarter":
+      return .nextQuarter
+    case "full moon":
+      return .nextFull
+    case "last quarter":
+      return .nextThreeQuarter
+    default:
+      return .default
+    }
+  }
+  
+  func retreiveNextPhase(_ phaseChoice: PhaseChoice) {
+    guard let request = MoonPhaseSearchRequest(phaseChoice: phaseChoice, currentSelectedDate: currentDatePicked) else {
+      return
+    }
+    
+    shouldForceRotation = phaseChoice.isLike(selectedPhase())
 
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
+    showLoadingSpinners(true)
+    request.send { result in
+      defer {
+        DispatchQueue.main.async {
+          self.showLoadingSpinners(false)
+        }
+      }
+      guard let response = result.intoOk() else {
+        log(.error, for: .network, message: "Error: \(result.unwrapErr())")
+        return
+      }
+      
+      guard let nextMoon = response.result.first else {
+        log(.error, for: .general, message: "No moon data found")
+        return
+      }
+      
+      DispatchQueue.main.async {
+        self.datePicker.date = nextMoon.dateTimeISO
+        self.currentDateShown = nextMoon.dateTimeISO
+        self.retrieveMoonValue(for: self.currentDateShown,
+                               dateInPast: self.currentDateShown < self.currentDatePicked)
+        self.currentDatePicked = self.currentDateShown
+      }
+    }
   }
   
   func retrieveMoonValue(for date: Date?, dateInPast: Bool) {
     let request = MoonPhaseRequest(date: date)
+    showLoadingSpinners(true)
     request.send { result in
+      defer {
+        DispatchQueue.main.async {
+          self.showLoadingSpinners(false)
+          self.shouldForceRotation = false
+        }
+      }
+
       guard let response = result.intoOk() else {
         log(.error, for: .network, message: "Error: \(result.unwrapErr())")
         return
@@ -202,10 +368,13 @@ class ViewController: UIViewController {
       }
       
       DispatchQueue.main.async {
-        self.moon.setPercentage(moon.phase.phase, animated: true, forward: dateInPast)
+        self.moon.setPercentage(moon.phase.phase,
+                                animated: true,
+                                forward: dateInPast,
+                                shouldForceRotation: self.shouldForceRotation)
         self.moon.setAngle(CGFloat(moon.phase.angle), animated: true)
         self.moonPhaseLabel.text = moon.phase.name
-        
+        self.view.setNeedsLayout()
         
         if let riseDate = moon.riseISO, let setDate = moon.setISO {
           let moonRiseText = "Moon rises at \(self.format(date: riseDate, withDate: false))"
@@ -226,6 +395,30 @@ class ViewController: UIViewController {
           self.moonLabel1.text = nil
         }
       }
+    }
+  }
+  
+  func showLoadingSpinners(_ shouldShow: Bool) {
+    let disabledBackgroundColor = UIColor.lightGray.withAlphaComponent(0.5)
+    let enabledBackgroundColor = UIColor.clear
+
+    if shouldShow {
+      phaseLabelBoundingBox.backgroundColor = disabledBackgroundColor
+      phaseActivityIndicator.startAnimating()
+      moonPhaseLabel.isUserInteractionEnabled = false
+      
+      dateLabel.backgroundColor = disabledBackgroundColor
+      dateActivityIndicator.startAnimating()
+      dateLabel.isUserInteractionEnabled = false
+    }
+    else {
+      phaseLabelBoundingBox.backgroundColor = enabledBackgroundColor
+      phaseActivityIndicator.stopAnimating()
+      moonPhaseLabel.isUserInteractionEnabled = true
+      
+      dateLabel.backgroundColor = enabledBackgroundColor
+      dateActivityIndicator.stopAnimating()
+      dateLabel.isUserInteractionEnabled = true
     }
   }
 }
