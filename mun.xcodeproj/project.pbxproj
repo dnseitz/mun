@@ -26,6 +26,8 @@
 		0836937E213F68A50000AE78 /* PhasePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0836937D213F68A40000AE78 /* PhasePickerView.swift */; };
 		08369380213F6E1B0000AE78 /* MoonPhaseSearchRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0836937F213F6E1B0000AE78 /* MoonPhaseSearchRequest.swift */; };
 		08369382213F6E370000AE78 /* MoonPhaseSearchResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369381213F6E370000AE78 /* MoonPhaseSearchResponse.swift */; };
+		08369384213FA16C0000AE78 /* PhaseLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369383213FA16C0000AE78 /* PhaseLabel.swift */; };
+		08369386213FA4F60000AE78 /* DateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369385213FA4F60000AE78 /* DateView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,6 +112,8 @@
 		0836937D213F68A40000AE78 /* PhasePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhasePickerView.swift; sourceTree = "<group>"; };
 		0836937F213F6E1B0000AE78 /* MoonPhaseSearchRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPhaseSearchRequest.swift; sourceTree = "<group>"; };
 		08369381213F6E370000AE78 /* MoonPhaseSearchResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPhaseSearchResponse.swift; sourceTree = "<group>"; };
+		08369383213FA16C0000AE78 /* PhaseLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseLabel.swift; sourceTree = "<group>"; };
+		08369385213FA4F60000AE78 /* DateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,6 +206,8 @@
 			children = (
 				0836932B213AD7140000AE78 /* MoonView.swift */,
 				0836937D213F68A40000AE78 /* PhasePickerView.swift */,
+				08369383213FA16C0000AE78 /* PhaseLabel.swift */,
+				08369385213FA4F60000AE78 /* DateView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -405,9 +411,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08369386213FA4F60000AE78 /* DateView.swift in Sources */,
 				0836937E213F68A50000AE78 /* PhasePickerView.swift in Sources */,
 				08369380213F6E1B0000AE78 /* MoonPhaseSearchRequest.swift in Sources */,
 				08369375213B3B630000AE78 /* MoonPhaseRequest.swift in Sources */,
+				08369384213FA16C0000AE78 /* PhaseLabel.swift in Sources */,
 				08369378213B3B7D0000AE78 /* MoonPhaseResponse.swift in Sources */,
 				0836932C213AD7140000AE78 /* MoonView.swift in Sources */,
 				083692FF213338EA0000AE78 /* ViewController.swift in Sources */,

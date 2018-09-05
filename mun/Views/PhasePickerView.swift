@@ -39,9 +39,9 @@ enum PhaseChoice: String {
 class PhasePickerView: UIView {
   private let pickerView: UIPickerView
   private let pickerOptions: [PhaseChoice] = [
-    .previousThreeQuarter,
-    .previousFull,
     .previousQuarter,
+    .previousFull,
+    .previousThreeQuarter,
     .previousNew,
     .default,
     .nextNew,

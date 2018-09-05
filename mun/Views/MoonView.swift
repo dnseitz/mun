@@ -18,7 +18,7 @@ public class MoonView: UIView {
   private var currentPath: UIBezierPath!
   private var nextPath: UIBezierPath!
   private var shapeLayer: CAShapeLayer?
-  private let defaultDuration: CFTimeInterval = 0.15
+  private let defaultDuration: CFTimeInterval = 0.125
   
   private let imageView: UIImageView
   
@@ -29,10 +29,14 @@ public class MoonView: UIView {
     return shapeLayer?.mask as? CAShapeLayer
   }
   
+  private var gradientLayer: CAGradientLayer?
+  
   public override init(frame: CGRect) {
     let halfWidth = frame.size.width / 2
     let halfHeight = frame.size.height / 2
-    let circleControlPointOffset: CGFloat = 42
+    let circleControlPointOffset: CGFloat = 43
+//    let circleControlPointOffset: CGFloat = 75
+
     
     imageView = UIImageView(frame: frame)
     
@@ -64,7 +68,11 @@ public class MoonView: UIView {
     let maskLayer = CAShapeLayer()
     maskLayer.path = currentPath.cgPath
     maskLayer.fillColor = UIColor.black.cgColor
-    // TODO: Maybe mask out here with gradient to blend shadow a little
+    maskLayer.opacity = 0.85
+    
+    maskLayer.shadowRadius = 4
+    maskLayer.shadowColor = UIColor.black.cgColor
+    maskLayer.shadowOpacity = 1
 
     shapeLayer.mask = maskLayer
     shapeLayer.frame = layer.bounds
@@ -161,10 +169,11 @@ public class MoonView: UIView {
                   controlPoint1: controlPoint1,
                   controlPoint2: controlPoint2)
     path.addArc(withCenter: CGPoint(x: halfWidth, y: halfHeight),
-                radius: halfHeight,
+                radius: halfHeight + halfHeight / 2,
                 startAngle: CGFloat(90).toRadians(),
                 endAngle: CGFloat(270).toRadians(),
                 clockwise: waning)
+    path.close()
     
     return path
   }
@@ -192,9 +201,6 @@ private var forcedRotation: Bool = false
 
 extension MoonView: CAAnimationDelegate {
   public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-    guard flag else {
-      return assertionFailure("Animation failed to finish")
-    }
     let shouldSwitch = forward ? currentControlX <= minControlX : currentControlX >= initialControlX
     if shouldSwitch == true {
       waning = !waning
@@ -204,6 +210,9 @@ extension MoonView: CAAnimationDelegate {
       currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
                          controlPoint2: CGPoint(x: currentControlX, y: frame.height),
                          waning: waning)
+      
+      let width = waning ? 8 : -8
+      maskLayer?.shadowOffset = CGSize(width: width, height: 0)
     }
     else {
       currentPath = nextPath

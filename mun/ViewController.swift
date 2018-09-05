@@ -10,33 +10,19 @@ import UIKit
 import YAPI
 
 class ViewController: UIViewController {
-  
-  private lazy var phaseLabelBoundingBox: UIView = {
-    let boundingBox = UIView()
-    boundingBox.layer.borderColor = UIColor.lightGray.cgColor
-    boundingBox.layer.borderWidth = 1.5
-    
-    boundingBox.isUserInteractionEnabled = false
-    
-    boundingBox.addSubview(phaseActivityIndicator)
-    
-    return boundingBox
-  }()
-  
   private var shouldForceRotation: Bool = false
   
-  private var phaseActivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
   private var dateActivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
   
   private var moonLabel1: UILabel!
   private var moonLabel2: UILabel!
-  private var moonPhaseLabel: UILabel!
+  private var moonPhaseLabel: PhaseLabel!
   private var phasePicker: PhasePickerView!
   private var phasePickerAnimating: Bool = false
   private var phasePickerAlpha: CGFloat = 0.9
 
   private var moon: MoonView!
-  private var dateLabel: UILabel!
+  private var dateView: DateView!
   private var datePicker: UIDatePicker!
   private var datePickerAnimating: Bool = false
   private let datePickerHeight: CGFloat = 160
@@ -44,17 +30,14 @@ class ViewController: UIViewController {
   
   private var currentDateShown: Date = Date() {
     didSet {
-      dateLabel.text = format(date: currentDateShown)
+      dateView.text = format(date: currentDateShown)
     }
   }
   private var currentDatePicked: Date = Date()
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view, typically from a nib.
-    
-    let width: CGFloat = 240.0
-    let height: CGFloat = 240.0
-    
+    let width: CGFloat = 220.0
+    let height: CGFloat = 220.0
     
     let backgroundImage = UIImageView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height))
     backgroundImage.image = #imageLiteral(resourceName: "starry-background")
@@ -70,7 +53,7 @@ class ViewController: UIViewController {
     
     view.addSubview(moon)
     
-    let phaseLabel = UILabel(frame: CGRect(x: 0, y: moon.frame.minY - 58, width: view.frame.width, height: 50))
+    let phaseLabel = PhaseLabel(frame: CGRect(x: 0, y: moon.frame.minY - 58, width: view.frame.width, height: 50))
     phaseLabel.textAlignment = .center
     phaseLabel.textColor = UIColor.lightText
     phaseLabel.backgroundColor = .clear
@@ -84,11 +67,7 @@ class ViewController: UIViewController {
     
     let picker = PhasePickerView(frame: CGRect(x: 0, y: phaseLabel.frame.maxY + 4, width: view.frame.width, height: datePickerHeight))
     picker.backgroundColor = UIColor.lightGray.withAlphaComponent(phasePickerAlpha)
-//    picker.backgroundColor = UIColor.clear
-//    picker.layer.addSublayer(createHorizontalGradientLayer(with: picker.bounds))
-//    picker.layer.mask = createVerticalGradientLayer(with: picker.bounds)
     picker.layer.mask = createHorizontalGradientLayer(with: picker.bounds)
-//    picker.layer.mask?.mask = createVerticalGradientLayer(with: picker.bounds)
 
     phasePicker = picker
     view.addSubview(picker)
@@ -116,68 +95,19 @@ class ViewController: UIViewController {
     retrieveMoonValue(for: nil, dateInPast: false)
   }
   
-  override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    
-    phaseLabelBoundingBox.removeFromSuperview()
-    
-    let boundingRect = moonPhaseLabel.textRect(forBounds: moonPhaseLabel.bounds, limitedToNumberOfLines: 1)
-    phaseLabelBoundingBox.frame = CGRect(x: boundingRect.origin.x - 5,
-                                         y: moonPhaseLabel.frame.origin.y,
-                                         width: boundingRect.width + 10,
-                                         height: moonPhaseLabel.frame.height)
-    
-    let width = phaseLabelBoundingBox.frame.width
-    let height = phaseLabelBoundingBox.frame.height
-    phaseActivityIndicator.frame = CGRect(x: 0,
-                                          y: 0,
-                                          width: width,
-                                          height: height)
-    phaseActivityIndicator.hidesWhenStopped = true
-    
-    view.addSubview(phaseLabelBoundingBox)
-  }
-  
   func setupDateView(on date: Date) {
-    let containerView = UIView(frame: CGRect(x: 20, y: view.frame.height - 200, width: view.frame.width - 40, height: 44))
-    
-    containerView.backgroundColor = UIColor.clear
-    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dateWasTapped))
-    containerView.addGestureRecognizer(tapGesture)
-    
-    // Label
-    let label = UILabel(frame: CGRect(x: 0, y: 0, width: containerView.frame.width, height: containerView.frame.height))
-    label.backgroundColor = UIColor.clear
-    label.text = "Moon on:"
-    label.textColor = UIColor.lightText
+    let dateView = DateView(frame: CGRect(x: 20, y: view.frame.height - 200, width: view.frame.width - 40, height: 44))
 
-    // Date label
-    let textRect = label.textRect(forBounds: containerView.frame, limitedToNumberOfLines: 1)
-    let dateLabel = UILabel(frame: CGRect(x: textRect.width + 8, y: 0, width: containerView.frame.width - textRect.width - 8, height: containerView.frame.height))
-    dateLabel.backgroundColor = UIColor.clear
-    dateLabel.textAlignment = .center
-    dateLabel.text = format(date: date)
-    dateLabel.textColor = UIColor.lightText
-    dateLabel.layer.borderWidth = 1.5
-    dateLabel.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.5).cgColor
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dateWasTapped))
+    dateView.addGestureRecognizer(tapGesture)
     
-    dateActivityIndicator.frame = CGRect(x: 0,
-                                         y: 0,
-                                         width: dateLabel.frame.width,
-                                         height: dateLabel.frame.height)
-    
-    dateLabel.addSubview(dateActivityIndicator)
-    dateActivityIndicator.hidesWhenStopped = true
-    
-    self.dateLabel = dateLabel
-    
-    containerView.addSubview(label)
-    containerView.addSubview(dateLabel)
-    
-    view.addSubview(containerView)
+    dateView.text = format(date: date)
+
+    self.dateView = dateView
+    view.addSubview(dateView)
     
     // Date Picker
-    let datePicker = UIDatePicker(frame: CGRect(x: 0, y: containerView.frame.maxY + 4, width: view.frame.width, height: datePickerHeight))
+    let datePicker = UIDatePicker(frame: CGRect(x: 0, y: dateView.frame.maxY + 4, width: view.frame.width, height: datePickerHeight))
     datePicker.backgroundColor = UIColor.lightGray.withAlphaComponent(datePickerAlpha)
     datePicker.datePickerMode = .dateAndTime
     datePicker.addTarget(self, action: #selector(dateDidChange(_:)), for: UIControlEvents.valueChanged)
@@ -189,149 +119,27 @@ class ViewController: UIViewController {
     view.addSubview(datePicker)
     datePicker.frame.size.height = 0
   }
-  
-  func createHorizontalGradientLayer(with frame: CGRect) -> CAGradientLayer {
-    let gradientLayer = CAGradientLayer()
-    gradientLayer.frame = frame
-    gradientLayer.colors = [UIColor.clear.cgColor,
-                            UIColor.lightGray.cgColor,
-                            UIColor.lightGray.cgColor,
-                            UIColor.clear.cgColor]
-    gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
-    gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
-    gradientLayer.locations = [0, 0.2, 0.8, 1]
-    
-    return gradientLayer
-  }
-  
-  func createVerticalGradientLayer(with frame: CGRect) -> CAGradientLayer {
-    let gradientLayer = CAGradientLayer()
-    gradientLayer.frame = frame
-    gradientLayer.colors = [UIColor.black.cgColor,
-                            UIColor.black.cgColor,
-                            UIColor.clear.cgColor]
-    gradientLayer.locations = [0, 0.5, 1]
-    
-    return gradientLayer
-  }
-  
-  @objc func dateDidChange(_ datePicker: UIDatePicker) {
-    currentDateShown = datePicker.date
-  }
-  
-  @objc func phaseWasTapped() {
-    guard phasePickerAnimating == false else {
-      return
-    }
-    phasePickerAnimating = true
-    
-    if phasePicker.frame.height == 0 {
-      phasePicker.defaultValue = moonPhaseLabel.text?.capitalized
-      UIView.animate(withDuration: 0.2, animations: {
-        self.phasePicker.alpha = self.phasePickerAlpha
-        self.phasePicker.frame.size.height = self.datePickerHeight
-      }) { completed in
-        self.phasePickerAnimating = false
-      }
-    }
-    else {
-      retreiveNextPhase(phasePicker.selectedValue)
-      UIView.animate(withDuration: 0.2,
-                     delay: 0,
-                     options: [UIViewAnimationOptions.curveEaseOut],
-                     animations: {
-                      self.phasePicker.alpha = 0
-                      self.phasePicker.frame.size.height = 0
-                      
-      }, completion: { (completed) in
-        self.phasePickerAnimating = false
-      })
-    }
-  }
-  
-  @objc func dateWasTapped() {
-    guard datePickerAnimating == false else {
-      return
-    }
-    datePickerAnimating = true
-    
-    if datePicker.frame.height == 0 {
-      // Open event
-      UIView.animate(withDuration: 0.2, animations: {
-        self.datePicker.alpha = self.datePickerAlpha
-        // Calculated manually
-        self.datePicker.frame.size.height = self.datePickerHeight
-      }) { completed in
-        self.datePickerAnimating = false
-      }
-    }
-    else {
-      // Close event, get the new date
-      retrieveMoonValue(for: currentDateShown, dateInPast: currentDateShown < currentDatePicked)
-      UIView.animate(withDuration: 0.2,
-                     delay: 0,
-                     options: [UIViewAnimationOptions.curveEaseOut],
-                     animations: {
-        self.datePicker.alpha = 0
-        self.datePicker.frame.size.height = 0
-                      
-      }, completion: { (completed) in
-        self.datePickerAnimating = false
-      })
-    }
-    currentDatePicked = currentDateShown
-  }
-  
-  func format(date: Date, withTime: Bool = true, withDate: Bool = true) -> String {
-    let formatter = DateFormatter()
-    
-    formatter.dateStyle = withDate ? .medium : .none
-    formatter.timeStyle = withTime ? .short : .none
-    formatter.locale = Locale.autoupdatingCurrent
-    
-    return formatter.string(from: date)
-  }
-  
-  @objc func sliderValueChanged(_ slider: UISlider) {
-    moon.setPercentage(Double(slider.value), animated: false, forward: true)
-  }
-  
-  func selectedPhase() -> PhaseChoice {
-    guard let text = moonPhaseLabel.text else { return .default }
-    switch text.lowercased() {
-    case "new moon":
-      return .nextNew
-    case "first quarter":
-      return .nextQuarter
-    case "full moon":
-      return .nextFull
-    case "last quarter":
-      return .nextThreeQuarter
-    default:
-      return .default
-    }
-  }
-  
+}
+
+// MARK: Networking
+private extension ViewController {
   func retreiveNextPhase(_ phaseChoice: PhaseChoice) {
     guard let request = MoonPhaseSearchRequest(phaseChoice: phaseChoice, currentSelectedDate: currentDatePicked) else {
       return
     }
     
     shouldForceRotation = phaseChoice.isLike(selectedPhase())
-
+    
     showLoadingSpinners(true)
     request.send { result in
-      defer {
-        DispatchQueue.main.async {
-          self.showLoadingSpinners(false)
-        }
-      }
       guard let response = result.intoOk() else {
+        self.showLoadingSpinners(false)
         log(.error, for: .network, message: "Error: \(result.unwrapErr())")
         return
       }
       
       guard let nextMoon = response.result.first else {
+        self.showLoadingSpinners(false)
         log(.error, for: .general, message: "No moon data found")
         return
       }
@@ -356,7 +164,7 @@ class ViewController: UIViewController {
           self.shouldForceRotation = false
         }
       }
-
+      
       guard let response = result.intoOk() else {
         log(.error, for: .network, message: "Error: \(result.unwrapErr())")
         return
@@ -397,33 +205,140 @@ class ViewController: UIViewController {
       }
     }
   }
-  
-  func showLoadingSpinners(_ shouldShow: Bool) {
-    let disabledBackgroundColor = UIColor.lightGray.withAlphaComponent(0.5)
-    let enabledBackgroundColor = UIColor.clear
+}
 
-    if shouldShow {
-      phaseLabelBoundingBox.backgroundColor = disabledBackgroundColor
-      phaseActivityIndicator.startAnimating()
-      moonPhaseLabel.isUserInteractionEnabled = false
-      
-      dateLabel.backgroundColor = disabledBackgroundColor
-      dateActivityIndicator.startAnimating()
-      dateLabel.isUserInteractionEnabled = false
+// MARK: Action Handling
+private extension ViewController {
+  @objc func dateWasTapped() {
+    guard datePickerAnimating == false else {
+      return
+    }
+    datePickerAnimating = true
+    
+    if datePicker.frame.height == 0 {
+      // Open event
+      UIView.animate(withDuration: 0.2, animations: {
+        self.datePicker.alpha = self.datePickerAlpha
+        // Calculated manually
+        self.datePicker.frame.size.height = self.datePickerHeight
+      }) { completed in
+        self.datePickerAnimating = false
+      }
     }
     else {
-      phaseLabelBoundingBox.backgroundColor = enabledBackgroundColor
-      phaseActivityIndicator.stopAnimating()
-      moonPhaseLabel.isUserInteractionEnabled = true
-      
-      dateLabel.backgroundColor = enabledBackgroundColor
-      dateActivityIndicator.stopAnimating()
-      dateLabel.isUserInteractionEnabled = true
+      // Close event, get the new date
+      retrieveMoonValue(for: currentDateShown, dateInPast: currentDateShown < currentDatePicked)
+      UIView.animate(withDuration: 0.2,
+                     delay: 0,
+                     options: [UIViewAnimationOptions.curveEaseOut],
+                     animations: {
+                      self.datePicker.alpha = 0
+                      self.datePicker.frame.size.height = 0
+                      
+      }, completion: { (completed) in
+        self.datePickerAnimating = false
+      })
+    }
+    currentDatePicked = currentDateShown
+  }
+  
+  @objc func dateDidChange(_ datePicker: UIDatePicker) {
+    currentDateShown = datePicker.date
+  }
+  
+  @objc func phaseWasTapped() {
+    guard phasePickerAnimating == false else {
+      return
+    }
+    phasePickerAnimating = true
+    
+    if phasePicker.frame.height == 0 {
+      phasePicker.defaultValue = moonPhaseLabel.text?.capitalized
+      UIView.animate(withDuration: 0.2, animations: {
+        self.phasePicker.alpha = self.phasePickerAlpha
+        self.phasePicker.frame.size.height = self.datePickerHeight
+      }) { completed in
+        self.phasePickerAnimating = false
+      }
+    }
+    else {
+      retreiveNextPhase(phasePicker.selectedValue)
+      UIView.animate(withDuration: 0.2,
+                     delay: 0,
+                     options: [UIViewAnimationOptions.curveEaseOut],
+                     animations: {
+                      self.phasePicker.alpha = 0
+                      self.phasePicker.frame.size.height = 0
+                      
+      }, completion: { (completed) in
+        self.phasePickerAnimating = false
+      })
     }
   }
 }
 
-extension ViewController: UIPickerViewDelegate {
+// MARK: Utility Methods
+private extension ViewController {
+  func createHorizontalGradientLayer(with frame: CGRect) -> CAGradientLayer {
+    let gradientLayer = CAGradientLayer()
+    gradientLayer.frame = frame
+    gradientLayer.colors = [UIColor.clear.cgColor,
+                            UIColor.lightGray.cgColor,
+                            UIColor.lightGray.cgColor,
+                            UIColor.clear.cgColor]
+    gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
+    gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
+    gradientLayer.locations = [0, 0.2, 0.8, 1]
+    
+    return gradientLayer
+  }
   
+  func createVerticalGradientLayer(with frame: CGRect) -> CAGradientLayer {
+    let gradientLayer = CAGradientLayer()
+    gradientLayer.frame = frame
+    gradientLayer.colors = [UIColor.black.cgColor,
+                            UIColor.black.cgColor,
+                            UIColor.clear.cgColor]
+    gradientLayer.locations = [0, 0.5, 1]
+    
+    return gradientLayer
+  }
+  
+  func format(date: Date, withTime: Bool = true, withDate: Bool = true) -> String {
+    let formatter = DateFormatter()
+    
+    formatter.dateStyle = withDate ? .medium : .none
+    formatter.timeStyle = withTime ? .short : .none
+    formatter.locale = Locale.autoupdatingCurrent
+    
+    return formatter.string(from: date)
+  }
+  
+  func selectedPhase() -> PhaseChoice {
+    guard let text = moonPhaseLabel.text else { return .default }
+    switch text.lowercased() {
+    case "new moon":
+      return .nextNew
+    case "first quarter":
+      return .nextQuarter
+    case "full moon":
+      return .nextFull
+    case "last quarter":
+      return .nextThreeQuarter
+    default:
+      return .default
+    }
+  }
+  
+  func showLoadingSpinners(_ shouldShow: Bool) {
+    if shouldShow {
+      moonPhaseLabel.isLoading = true
+      dateView.isLoading = true
+    }
+    else {
+      moonPhaseLabel.isLoading = false
+      dateView.isLoading = false
+    }
+  }
 }
 
