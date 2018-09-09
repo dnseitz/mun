@@ -201,7 +201,7 @@ private var forcedRotation: Bool = false
 
 extension MoonView: CAAnimationDelegate {
   public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-    let shouldSwitch = forward ? currentControlX <= minControlX : currentControlX >= initialControlX
+    let shouldSwitch = forward ? currentControlX < minControlX : currentControlX > initialControlX
     if shouldSwitch == true {
       waning = !waning
       forcedRotation = false
