@@ -8,9 +8,13 @@
 
 import UIKit
 import YAPI
+import CoreLocation
 
 class ViewController: UIViewController {
+  private let locationManager = CLLocationManager()
   private var shouldForceRotation: Bool = false
+  
+  private var queuedAnimations: [(animation: () -> Void, completion: (Bool) -> Void)] = []
   
   private var dateActivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
   
@@ -18,24 +22,24 @@ class ViewController: UIViewController {
   private var moonLabel2: UILabel!
   private var moonPhaseLabel: PhaseLabel!
   private var phasePicker: PhasePickerView!
-  private var phasePickerAnimating: Bool = false
   private var phasePickerAlpha: CGFloat = 0.9
 
   private var moon: MoonView!
   private var dateView: DateView!
   private var datePicker: UIDatePicker!
-  private var datePickerAnimating: Bool = false
   private let datePickerHeight: CGFloat = 160
   private let datePickerAlpha: CGFloat = 0.7
   
   private var currentDateShown: Date = Date() {
     didSet {
       dateView.text = format(date: currentDateShown)
+      datePicker.date = currentDateShown
     }
   }
   private var currentDatePicked: Date = Date()
   override func viewDidLoad() {
     super.viewDidLoad()
+    
     let width: CGFloat = 220.0
     let height: CGFloat = 220.0
     
@@ -58,6 +62,7 @@ class ViewController: UIViewController {
     phaseLabel.textColor = UIColor.lightText
     phaseLabel.backgroundColor = .clear
     phaseLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+    phaseLabel.text = "moon phase"
     
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(phaseWasTapped))
     phaseLabel.addGestureRecognizer(tapGesture)
@@ -95,6 +100,18 @@ class ViewController: UIViewController {
     retrieveMoonValue(for: nil, dateInPast: false)
   }
   
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+
+    // Low accuracy since it doesn't matter that much
+    locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+    locationManager.distanceFilter = 10000
+    locationManager.requestWhenInUseAuthorization()
+    locationManager.startUpdatingLocation()
+    
+    currentDateShown = currentDatePicked
+  }
+  
   func setupDateView(on date: Date) {
     let dateView = DateView(frame: CGRect(x: 20, y: view.frame.height - 200, width: view.frame.width - 40, height: 44))
 
@@ -124,7 +141,9 @@ class ViewController: UIViewController {
 // MARK: Networking
 private extension ViewController {
   func retreiveNextPhase(_ phaseChoice: PhaseChoice) {
-    guard let request = MoonPhaseSearchRequest(phaseChoice: phaseChoice, currentSelectedDate: currentDatePicked) else {
+    guard let request = MoonPhaseSearchRequest(phaseChoice: phaseChoice,
+                                               currentSelectedDate: currentDatePicked,
+                                               location: locationManager.location) else {
       return
     }
     
@@ -155,7 +174,7 @@ private extension ViewController {
   }
   
   func retrieveMoonValue(for date: Date?, dateInPast: Bool) {
-    let request = MoonPhaseRequest(date: date)
+    let request = MoonPhaseRequest(date: date, location: locationManager.location)
     showLoadingSpinners(true)
     request.send { result in
       defer {
@@ -210,36 +229,19 @@ private extension ViewController {
 // MARK: Action Handling
 private extension ViewController {
   @objc func dateWasTapped() {
-    guard datePickerAnimating == false else {
-      return
-    }
-    datePickerAnimating = true
-    
     if datePicker.frame.height == 0 {
       // Open event
-      UIView.animate(withDuration: 0.2, animations: {
-        self.datePicker.alpha = self.datePickerAlpha
-        // Calculated manually
-        self.datePicker.frame.size.height = self.datePickerHeight
-      }) { completed in
-        self.datePickerAnimating = false
-      }
+      expand(view: datePicker, toHeight: datePickerHeight, toAlpha: datePickerAlpha, animated: true)
+      collapse(view: phasePicker, animated: true)
     }
     else {
       // Close event, get the new date
-      retrieveMoonValue(for: currentDateShown, dateInPast: currentDateShown < currentDatePicked)
-      UIView.animate(withDuration: 0.2,
-                     delay: 0,
-                     options: [UIViewAnimationOptions.curveEaseOut],
-                     animations: {
-                      self.datePicker.alpha = 0
-                      self.datePicker.frame.size.height = 0
-                      
-      }, completion: { (completed) in
-        self.datePickerAnimating = false
-      })
+      if self.currentDateShown != self.currentDatePicked {
+        self.retrieveMoonValue(for: self.currentDateShown, dateInPast: self.currentDateShown < self.currentDatePicked)
+        self.currentDatePicked = self.currentDateShown
+      }
+      collapse(view: datePicker, animated: true)
     }
-    currentDatePicked = currentDateShown
   }
   
   @objc func dateDidChange(_ datePicker: UIDatePicker) {
@@ -247,38 +249,77 @@ private extension ViewController {
   }
   
   @objc func phaseWasTapped() {
-    guard phasePickerAnimating == false else {
-      return
-    }
-    phasePickerAnimating = true
-    
     if phasePicker.frame.height == 0 {
       phasePicker.defaultValue = moonPhaseLabel.text?.capitalized
-      UIView.animate(withDuration: 0.2, animations: {
-        self.phasePicker.alpha = self.phasePickerAlpha
-        self.phasePicker.frame.size.height = self.datePickerHeight
-      }) { completed in
-        self.phasePickerAnimating = false
-      }
+      expand(view: phasePicker, toHeight: datePickerHeight, toAlpha: phasePickerAlpha, animated: true)
+      self.currentDateShown = self.currentDatePicked
+      collapse(view: datePicker, animated: true)
     }
     else {
       retreiveNextPhase(phasePicker.selectedValue)
-      UIView.animate(withDuration: 0.2,
-                     delay: 0,
-                     options: [UIViewAnimationOptions.curveEaseOut],
-                     animations: {
-                      self.phasePicker.alpha = 0
-                      self.phasePicker.frame.size.height = 0
-                      
-      }, completion: { (completed) in
-        self.phasePickerAnimating = false
-      })
+      collapse(view: phasePicker, animated: true)
     }
   }
 }
 
 // MARK: Utility Methods
 private extension ViewController {
+  func runQueuedAnimations() {
+    let localQueue = queuedAnimations
+    queuedAnimations.removeAll()
+    
+    guard localQueue.isEmpty == false else { return }
+
+    let animationBlocks = localQueue.map { $0.animation }
+    let completionBlocks = localQueue.map { $0.completion }
+    UIView.animate(withDuration: 0.2, animations: {
+      for animationBlock in animationBlocks {
+        animationBlock()
+      }
+    }) { completed in
+      for completionBlock in completionBlocks {
+        completionBlock(completed)
+      }
+      self.runQueuedAnimations()
+    }
+  }
+
+  func expand(view: UIView,
+              toHeight height: CGFloat,
+              toAlpha alpha: CGFloat,
+              animated: Bool,
+              completion: ((Bool) -> Void)? = nil) {
+    if animated {
+      UIView.animate(withDuration: 0.2, delay: 0.0, options: [.transitionCurlDown, .beginFromCurrentState], animations: {
+        view.alpha = alpha
+        view.frame.size.height = height
+      }) { completed in
+        completion?(completed)
+      }
+    }
+    else {
+      view.alpha = alpha
+      view.frame.size.height = height
+      completion?(true)
+    }
+  }
+  
+  func collapse(view: UIView, animated: Bool, completion: ((Bool) -> Void)? = nil) {
+    if animated {
+      UIView.animate(withDuration: 0.2, delay: 0.0, options: [.transitionCurlUp, .beginFromCurrentState], animations: {
+        view.alpha = 0
+        view.frame.size.height = 0
+      }) { completed in
+        completion?(completed)
+      }
+    }
+    else {
+      view.alpha = 0
+      view.frame.size.height = 0
+      completion?(true)
+    }
+  }
+
   func createHorizontalGradientLayer(with frame: CGRect) -> CAGradientLayer {
     let gradientLayer = CAGradientLayer()
     gradientLayer.frame = frame

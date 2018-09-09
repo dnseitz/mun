@@ -9,6 +9,7 @@
 import Foundation
 import YAPI
 import OAuthSwift
+import CoreLocation
 
 class MoonPhaseRequest: Request {
   typealias ResponseType = MoonPhaseResponse
@@ -18,16 +19,22 @@ class MoonPhaseRequest: Request {
   var path: String = "sunmoon/"
   var parameters: [String : String] = ["client_id": "klMeb5UcJgCPYVNwZfhaT",
                                        "client_secret": "Ya1VIjNhqJCsbkpxsz9xdf5dR6KjpijDbv5IS0n9",
-                                       "filter": "moon,moonphase",
-                                       "p": "portland,or,us"]
+                                       "filter": "moon,moonphase"]
   
   var requestMethod: OAuthSwiftHTTPRequest.Method = .GET
   
   var session: HTTPClient = HTTPClient.sharedSession
   
-  init(date: Date? = nil) {
+  init(date: Date? = nil, location: CLLocation? = nil) {
     if let date = date {
       parameters["from"] = String(Int(date.timeIntervalSince1970))
+    }
+    
+    if let location = location {
+      parameters["p"] = "\(location.coordinate.latitude),\(location.coordinate.longitude)"
+    }
+    else {
+      parameters["p"] = "portland,or,us"
     }
   }
 }

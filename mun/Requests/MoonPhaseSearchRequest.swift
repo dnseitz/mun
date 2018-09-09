@@ -9,6 +9,7 @@
 import Foundation
 import YAPI
 import OAuthSwift
+import CoreLocation
 
 class MoonPhaseSearchRequest: Request {
   typealias ResponseType = MoonPhaseSearchResponse
@@ -17,14 +18,13 @@ class MoonPhaseSearchRequest: Request {
   var host: String = "api.aerisapi.com/"
   var path: String = "sunmoon/moonphases/search"
   var parameters: [String : String] = ["client_id": "klMeb5UcJgCPYVNwZfhaT",
-                                       "client_secret": "Ya1VIjNhqJCsbkpxsz9xdf5dR6KjpijDbv5IS0n9",
-                                       "p": "45.5122,122.6587"]
+                                       "client_secret": "Ya1VIjNhqJCsbkpxsz9xdf5dR6KjpijDbv5IS0n9"]
   
   var requestMethod: OAuthSwiftHTTPRequest.Method = .GET
   
   var session: HTTPClient = HTTPClient.sharedSession
   
-  init?(phaseChoice: PhaseChoice, currentSelectedDate: Date) {
+  init?(phaseChoice: PhaseChoice, currentSelectedDate: Date, location: CLLocation? = nil) {
     // Arbitrary values that we use to massage the service data
     let thirtyDaysAsSeconds = 2592000.0 * 2.0
     let twelveHoursAsSeconds = 43200.0
@@ -36,6 +36,12 @@ class MoonPhaseSearchRequest: Request {
     parameters["query"] = phaseChoice.queryParameter
     parameters["sort"] = phaseChoice.sortParameter
     parameters["filter"] = phaseChoice.filterParameter
+    if let location = location {
+      parameters["p"] = "\(location.coordinate.latitude)\(location.coordinate.longitude)"
+    }
+    else {
+      parameters["p"] = "portland,or,us"
+    }
     switch phaseChoice {
     case .default: return nil
     case .nextFull:

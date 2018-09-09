@@ -252,10 +252,6 @@ extension MoonView: CAAnimationDelegate {
     maskLayer?.add(nextAnimation, forKey: "animatePath")
   }
   
-  private func handleRotationAnimation() {
-    
-  }
-  
   private enum TimingBehavior {
     case easeIn
     case linear
