@@ -28,6 +28,10 @@
 		08369382213F6E370000AE78 /* MoonPhaseSearchResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369381213F6E370000AE78 /* MoonPhaseSearchResponse.swift */; };
 		08369384213FA16C0000AE78 /* PhaseLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369383213FA16C0000AE78 /* PhaseLabel.swift */; };
 		08369386213FA4F60000AE78 /* DateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08369385213FA4F60000AE78 /* DateView.swift */; };
+		08C80D86218E23BF008191AC /* APIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C80D85218E23BF008191AC /* APIKeys.swift */; };
+		08C80D8A218E2F00008191AC /* APIKeyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C80D89218E2F00008191AC /* APIKeyRequest.swift */; };
+		08C80D8C218E2F1A008191AC /* APIKeyResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C80D8B218E2F1A008191AC /* APIKeyResponse.swift */; };
+		08C80D8F218F71E9008191AC /* Request+APIKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C80D8E218F71E9008191AC /* Request+APIKey.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -114,6 +118,10 @@
 		08369381213F6E370000AE78 /* MoonPhaseSearchResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPhaseSearchResponse.swift; sourceTree = "<group>"; };
 		08369383213FA16C0000AE78 /* PhaseLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseLabel.swift; sourceTree = "<group>"; };
 		08369385213FA4F60000AE78 /* DateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateView.swift; sourceTree = "<group>"; };
+		08C80D85218E23BF008191AC /* APIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeys.swift; sourceTree = "<group>"; };
+		08C80D89218E2F00008191AC /* APIKeyRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyRequest.swift; sourceTree = "<group>"; };
+		08C80D8B218E2F1A008191AC /* APIKeyResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyResponse.swift; sourceTree = "<group>"; };
+		08C80D8E218F71E9008191AC /* Request+APIKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Request+APIKey.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +177,7 @@
 		083692FB213338EA0000AE78 /* mun */ = {
 			isa = PBXGroup;
 			children = (
+				08C80D8D218F71D6008191AC /* Extensions */,
 				08369376213B3B6C0000AE78 /* Responses */,
 				08369373213B3B3A0000AE78 /* Requests */,
 				0836932D213B382B0000AE78 /* YAPI.xcodeproj */,
@@ -179,6 +188,7 @@
 				08369303213338ED0000AE78 /* Assets.xcassets */,
 				08369305213338ED0000AE78 /* LaunchScreen.storyboard */,
 				08369308213338ED0000AE78 /* Info.plist */,
+				08C80D85218E23BF008191AC /* APIKeys.swift */,
 			);
 			path = mun;
 			sourceTree = "<group>";
@@ -235,6 +245,7 @@
 			children = (
 				08369374213B3B630000AE78 /* MoonPhaseRequest.swift */,
 				0836937F213F6E1B0000AE78 /* MoonPhaseSearchRequest.swift */,
+				08C80D89218E2F00008191AC /* APIKeyRequest.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
@@ -244,8 +255,17 @@
 			children = (
 				08369377213B3B7D0000AE78 /* MoonPhaseResponse.swift */,
 				08369381213F6E370000AE78 /* MoonPhaseSearchResponse.swift */,
+				08C80D8B218E2F1A008191AC /* APIKeyResponse.swift */,
 			);
 			path = Responses;
+			sourceTree = "<group>";
+		};
+		08C80D8D218F71D6008191AC /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				08C80D8E218F71E9008191AC /* Request+APIKey.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -411,11 +431,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08C80D8F218F71E9008191AC /* Request+APIKey.swift in Sources */,
+				08C80D86218E23BF008191AC /* APIKeys.swift in Sources */,
 				08369386213FA4F60000AE78 /* DateView.swift in Sources */,
+				08C80D8A218E2F00008191AC /* APIKeyRequest.swift in Sources */,
 				0836937E213F68A50000AE78 /* PhasePickerView.swift in Sources */,
 				08369380213F6E1B0000AE78 /* MoonPhaseSearchRequest.swift in Sources */,
 				08369375213B3B630000AE78 /* MoonPhaseRequest.swift in Sources */,
 				08369384213FA16C0000AE78 /* PhaseLabel.swift in Sources */,
+				08C80D8C218E2F1A008191AC /* APIKeyResponse.swift in Sources */,
 				08369378213B3B7D0000AE78 /* MoonPhaseResponse.swift in Sources */,
 				0836932C213AD7140000AE78 /* MoonView.swift in Sources */,
 				083692FF213338EA0000AE78 /* ViewController.swift in Sources */,

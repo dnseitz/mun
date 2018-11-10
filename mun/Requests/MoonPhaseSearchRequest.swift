@@ -17,8 +17,7 @@ class MoonPhaseSearchRequest: Request {
   var oauthVersion: OAuthSwiftCredential.Version? = .oauth2
   var host: String = "api.aerisapi.com/"
   var path: String = "sunmoon/moonphases/search"
-  var parameters: [String : String] = ["client_id": "klMeb5UcJgCPYVNwZfhaT",
-                                       "client_secret": "Ya1VIjNhqJCsbkpxsz9xdf5dR6KjpijDbv5IS0n9"]
+  var parameters: [String : String] = [:]
   
   var requestMethod: OAuthSwiftHTTPRequest.Method = .GET
   
@@ -68,6 +67,15 @@ class MoonPhaseSearchRequest: Request {
     case .previousThreeQuarter:
       parameters["from"] = currentTimeMinus30Days
       parameters["to"] = currentTimeMinus6Hours
+    }
+  }
+  
+  func prepare(completionHandler handler: @escaping RequestPrepareHandler) {
+    APIKeys.getKeys { [weak self] clientID, clientSecret in
+      guard let self = self else { return }
+      self.parameters["client_id"] = clientID
+      self.parameters["client_secret"] = clientSecret
+      return handler()
     }
   }
 }

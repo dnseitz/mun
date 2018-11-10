@@ -17,9 +17,7 @@ class MoonPhaseRequest: Request {
   var oauthVersion: OAuthSwiftCredential.Version? = .oauth2
   var host: String = "api.aerisapi.com/"
   var path: String = "sunmoon/"
-  var parameters: [String : String] = ["client_id": "klMeb5UcJgCPYVNwZfhaT",
-                                       "client_secret": "Ya1VIjNhqJCsbkpxsz9xdf5dR6KjpijDbv5IS0n9",
-                                       "filter": "moon,moonphase"]
+  var parameters: [String : String] = ["filter": "moon,moonphase"]
   
   var requestMethod: OAuthSwiftHTTPRequest.Method = .GET
   
@@ -35,6 +33,15 @@ class MoonPhaseRequest: Request {
     }
     else {
       parameters["p"] = "portland,or,us"
+    }
+  }
+  
+  func prepare(completionHandler handler: @escaping RequestPrepareHandler) {
+    APIKeys.getKeys { [weak self] clientID, clientSecret in
+      guard let self = self else { return }
+      self.parameters["client_id"] = clientID
+      self.parameters["client_secret"] = clientSecret
+      return handler()
     }
   }
 }

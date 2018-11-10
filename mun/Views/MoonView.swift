@@ -19,6 +19,7 @@ public class MoonView: UIView {
   private var nextPath: UIBezierPath!
   private var shapeLayer: CAShapeLayer?
   private let defaultDuration: CFTimeInterval = 0.125
+  private let yCurveOffset: CGFloat = 5
   
   private let imageView: UIImageView
   
@@ -51,12 +52,12 @@ public class MoonView: UIView {
     self.addSubview(imageView)
     imageView.image = #imageLiteral(resourceName: "moon-png-no-background-15")
 
-    currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
-                     controlPoint2: CGPoint(x: currentControlX, y: frame.height),
+    currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: yCurveOffset),
+                     controlPoint2: CGPoint(x: currentControlX, y: frame.height - yCurveOffset),
                        waning: false)
     currentControlX -= 10
-    nextPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
-                     controlPoint2: CGPoint(x: currentControlX, y: frame.height),
+    nextPath = path(controlPoint1: CGPoint(x: currentControlX, y: yCurveOffset),
+                     controlPoint2: CGPoint(x: currentControlX, y: frame.height - yCurveOffset),
                     waning: false)
 
     let shapeLayer = CAShapeLayer()
@@ -133,8 +134,8 @@ public class MoonView: UIView {
     }
     else {
       currentControlX = CGFloat(correctedValue)
-      maskLayer?.path = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
-                             controlPoint2: CGPoint(x: currentControlX, y: frame.height),
+      maskLayer?.path = path(controlPoint1: CGPoint(x: currentControlX, y: yCurveOffset),
+                             controlPoint2: CGPoint(x: currentControlX, y: frame.height - yCurveOffset),
                              waning: waning).cgPath
     }
   }
@@ -149,8 +150,8 @@ public class MoonView: UIView {
     self.destination = (waning: waning, controlX: destinationControlX)
     // There's a weird pause after the first animation that is not repeated in subsequent animations, this just kicks off the other animations by animating in place
     let nextControlX: CGFloat = currentControlX
-    nextPath = path(controlPoint1: CGPoint(x: nextControlX, y: 0),
-                    controlPoint2: CGPoint(x: nextControlX, y: frame.height),
+    nextPath = path(controlPoint1: CGPoint(x: nextControlX, y: yCurveOffset),
+                    controlPoint2: CGPoint(x: nextControlX, y: frame.height - yCurveOffset),
                     // This is different on purpose so we can animate to the
                     // correct next path in case the waning switch changes in the animation
                     waning: self.waning)
@@ -207,8 +208,8 @@ extension MoonView: CAAnimationDelegate {
       forcedRotation = false
       
       currentControlX = forward ? initialControlX : minControlX
-      currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
-                         controlPoint2: CGPoint(x: currentControlX, y: frame.height),
+      currentPath = path(controlPoint1: CGPoint(x: currentControlX, y: yCurveOffset),
+                         controlPoint2: CGPoint(x: currentControlX, y: frame.height - yCurveOffset),
                          waning: waning)
       
       let width = waning ? 8 : -8
@@ -241,8 +242,8 @@ extension MoonView: CAAnimationDelegate {
         currentControlX = destination.controlX
       }
     }
-    nextPath = path(controlPoint1: CGPoint(x: currentControlX, y: 0),
-                    controlPoint2: CGPoint(x: currentControlX, y: frame.height),
+    nextPath = path(controlPoint1: CGPoint(x: currentControlX, y: yCurveOffset),
+                    controlPoint2: CGPoint(x: currentControlX, y: frame.height - yCurveOffset),
                     waning: waning)
     maskLayer?.path = currentPath.cgPath
     

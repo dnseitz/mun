@@ -14,7 +14,7 @@ class ViewController: UIViewController {
   private let locationManager = CLLocationManager()
   private var shouldForceRotation: Bool = false
   
-  private var queuedAnimations: [(animation: () -> Void, completion: (Bool) -> Void)] = []
+//  private var queuedAnimations: [(animation: () -> Void, completion: (Bool) -> Void)] = []
   
   private var dateActivityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
   
@@ -97,23 +97,28 @@ class ViewController: UIViewController {
     
     setupDateView(on: Date())
     
-    retrieveMoonValue(for: nil, dateInPast: false)
+    // Low accuracy since it doesn't matter that much
+    locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+    locationManager.distanceFilter = 10000
+    locationManager.delegate = self
+    locationManager.requestWhenInUseAuthorization()
+    showLoadingSpinners(true)
+    if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+      locationManager.requestLocation()
+    }
+    else {
+      retrieveMoonValue(for: currentDatePicked, dateInPast: false)
+    }
   }
   
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-
-    // Low accuracy since it doesn't matter that much
-    locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
-    locationManager.distanceFilter = 10000
-    locationManager.requestWhenInUseAuthorization()
-    locationManager.startUpdatingLocation()
     
     currentDateShown = currentDatePicked
   }
   
   func setupDateView(on date: Date) {
-    let dateView = DateView(frame: CGRect(x: 20, y: view.frame.height - 200, width: view.frame.width - 40, height: 44))
+    let dateView = DateView(frame: CGRect(x: 20, y: view.frame.height - 240, width: view.frame.width - 40, height: 44))
 
     let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dateWasTapped))
     dateView.addGestureRecognizer(tapGesture)
@@ -173,7 +178,7 @@ private extension ViewController {
     }
   }
   
-  func retrieveMoonValue(for date: Date?, dateInPast: Bool) {
+  func retrieveMoonValue(for date: Date, dateInPast: Bool) {
     let request = MoonPhaseRequest(date: date, location: locationManager.location)
     showLoadingSpinners(true)
     request.send { result in
@@ -264,25 +269,25 @@ private extension ViewController {
 
 // MARK: Utility Methods
 private extension ViewController {
-  func runQueuedAnimations() {
-    let localQueue = queuedAnimations
-    queuedAnimations.removeAll()
-    
-    guard localQueue.isEmpty == false else { return }
-
-    let animationBlocks = localQueue.map { $0.animation }
-    let completionBlocks = localQueue.map { $0.completion }
-    UIView.animate(withDuration: 0.2, animations: {
-      for animationBlock in animationBlocks {
-        animationBlock()
-      }
-    }) { completed in
-      for completionBlock in completionBlocks {
-        completionBlock(completed)
-      }
-      self.runQueuedAnimations()
-    }
-  }
+//  func runQueuedAnimations() {
+//    let localQueue = queuedAnimations
+//    queuedAnimations.removeAll()
+//
+//    guard localQueue.isEmpty == false else { return }
+//
+//    let animationBlocks = localQueue.map { $0.animation }
+//    let completionBlocks = localQueue.map { $0.completion }
+//    UIView.animate(withDuration: 0.2, animations: {
+//      for animationBlock in animationBlocks {
+//        animationBlock()
+//      }
+//    }) { completed in
+//      for completionBlock in completionBlocks {
+//        completionBlock(completed)
+//      }
+//      self.runQueuedAnimations()
+//    }
+//  }
 
   func expand(view: UIView,
               toHeight height: CGFloat,
@@ -380,6 +385,18 @@ private extension ViewController {
       moonPhaseLabel.isLoading = false
       dateView.isLoading = false
     }
+  }
+}
+
+// MARK: CLLLocationManagerDelegate
+extension ViewController: CLLocationManagerDelegate {
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    print(locations)
+    retrieveMoonValue(for: currentDatePicked, dateInPast: false)
+  }
+  
+  func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    print(error)
   }
 }
 

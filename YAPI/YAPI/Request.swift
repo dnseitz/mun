@@ -71,6 +71,8 @@ private func oAuthClient(for version: OAuthSwiftCredential.Version?) -> OAuthSwi
   }
 }
 
+public typealias RequestPrepareHandler = () -> Void
+
 /**
     Any request that can be sent to the Yelp API conforms to this protocol. This could include requests to 
     the search API, business API, etc. The sendRequest function will query the Yelp API and return either a 
@@ -107,6 +109,17 @@ public protocol Request {
   /// The http session used to send this request
   var session: HTTPClient { get }
   
+  /// The port to connect to
+  var port: Int? { get }
+  
+  /**
+   Prepare the request for sending, this is called right before sending the request, allowing the
+   client to do any setup needed to finalize the request.
+   
+   - Parameter completionHandler: The block to call once preparation of the request has finished
+   */
+  func prepare(completionHandler handler: @escaping RequestPrepareHandler)
+  
   /**
    Sends the request, calling the given handler with either the yelp response or an error. This can be
    called multiple times to retry sending the request
@@ -118,8 +131,18 @@ public protocol Request {
 }
 
 public extension Request {
+  var port: Int? {
+    return nil
+  }
+  
+  public func prepare(completionHandler handler: @escaping RequestPrepareHandler) {
+    return handler()
+  }
+
   public func send(completionHandler handler: @escaping (_ result: Result<Self.ResponseType, APIError>) -> Void) {
-    self.internalSend(completionHandler: handler)
+    self.prepare {
+      self.internalSend(completionHandler: handler)
+    }
   }
 }
 
@@ -155,8 +178,11 @@ fileprivate extension Request {
   func generateURLRequest() -> URLRequest? {
     
     if let client = oAuthClient(for: oauthVersion) {
+      // HACK - only use port on custom server
+      let scheme = "https"
+//      let port = self.port != nil ? ":\(self.port!)" : ""
       guard
-        let request = client.makeRequest("https://\(self.host)\(self.path)",
+        let request = client.makeRequest("\(scheme)://\(self.host)\(self.path)",
                                          method: self.requestMethod,
                                          parameters: self.parameters,
                                          headers: nil,
@@ -171,6 +197,7 @@ fileprivate extension Request {
       components.scheme = "https"
       components.host = self.host
       components.path = self.path
+      components.port = self.port
       components.queryItems = self.parameters.map { URLQueryItem(name: $0, value: $1) }
       
       return components.url.map { URLRequest(url: $0) }
