@@ -13,23 +13,23 @@ public protocol Parameter : CustomStringConvertible {
   var value: String { get }
 }
 
-protocol BooleanParameter : ExpressibleByBooleanLiteral, Parameter {
+public protocol BooleanParameter : ExpressibleByBooleanLiteral, Parameter {
   var internalValue: Bool { get }
 }
 
-protocol StringParameter : ExpressibleByStringLiteral, Parameter {
+public protocol StringParameter : ExpressibleByStringLiteral, Parameter {
   var internalValue: String { get }
 }
 
-protocol IntParameter : ExpressibleByIntegerLiteral, Parameter {
+public protocol IntParameter : ExpressibleByIntegerLiteral, Parameter {
   var internalValue: Int { get }
 }
 
-protocol DoubleParameter : ExpressibleByFloatLiteral, Parameter {
+public protocol DoubleParameter : ExpressibleByFloatLiteral, Parameter {
   var internalValue: Double { get }
 }
 
-protocol ArrayParameter : ExpressibleByArrayLiteral, Parameter {
+public protocol ArrayParameter : ExpressibleByArrayLiteral, Parameter {
   associatedtype Element
   
   var internalValue: [Self.Element] { get }
@@ -37,13 +37,13 @@ protocol ArrayParameter : ExpressibleByArrayLiteral, Parameter {
   init(_ elements: [Self.Element])
 }
 
-extension Parameter {
+public extension Parameter {
   public var description: String {
     return self.value
   }
 }
 
-extension BooleanParameter {
+public extension BooleanParameter {
   public var value: String {
     return String(self.internalValue)
   }
@@ -53,7 +53,7 @@ extension BooleanParameter {
   }
 }
 
-extension StringParameter {
+public extension StringParameter {
   public var value: String {
     return self.internalValue
   }
@@ -63,7 +63,7 @@ extension StringParameter {
   }
 }
 
-extension IntParameter {
+public extension IntParameter {
   public var value: String {
     return String(self.internalValue)
   }
@@ -73,7 +73,7 @@ extension IntParameter {
   }
 }
 
-extension DoubleParameter {
+public extension DoubleParameter {
   public var value: String {
     return String(self.internalValue)
   }
@@ -83,7 +83,7 @@ extension DoubleParameter {
   }
 }
 
-extension ArrayParameter {
+public extension ArrayParameter {
   public var value: String {
     return self.internalValue.map() { "\($0)" }.joined(separator: ",")
   }

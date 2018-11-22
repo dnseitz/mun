@@ -13,11 +13,11 @@ import OAuthSwift
 class APIKeyRequest: Request {
   typealias ResponseType = APIKeyResponse
 
-  var oauthVersion: OAuthSwiftCredential.Version? = .oauth2
-  var host: String = "themunman.com"
-  var path: String = "/aeris_key"
-  var parameters: [String : String] = [:]
-  var requestMethod: OAuthSwiftHTTPRequest.Method = .GET
-  var session: HTTPClient = .sharedSession
+  let oauthVersion: OAuthSwiftCredential.Version? = .oauth2
+  let host: String = "themunman.com"
+  let path: String = "/aeris_key"
+  let parameters: ParameterList = ParameterList()
+  let requestMethod: OAuthSwiftHTTPRequest.Method = .GET
+  let session: HTTPClient = .sharedSession
 //  var port: Int? = 7979
 }

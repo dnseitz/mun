@@ -17,7 +17,9 @@ class MoonPhaseRequest: Request {
   var oauthVersion: OAuthSwiftCredential.Version? = .oauth2
   var host: String = "api.aerisapi.com/"
   var path: String = "sunmoon/"
-  var parameters: [String : String] = ["filter": "moon,moonphase"]
+  var parameters: ParameterList = ParameterList(parameters: [
+    RequestParameter(key: "filter", value: "moon,moonphase")
+  ])
   
   var requestMethod: OAuthSwiftHTTPRequest.Method = .GET
   

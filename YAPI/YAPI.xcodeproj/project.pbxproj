@@ -56,6 +56,7 @@
 		08A0FABB1D87261300FEB43C /* YelpPhoneSearchParametersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A0FABA1D87261300FEB43C /* YelpPhoneSearchParametersTests.swift */; };
 		08A0FABD1D87283400FEB43C /* YelpV2PhoneSearchRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A0FABC1D87283400FEB43C /* YelpV2PhoneSearchRequestTests.swift */; };
 		08A0FABF1D872E7F00FEB43C /* YelpV2PhoneSearchResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A0FABE1D872E7F00FEB43C /* YelpV2PhoneSearchResponseTests.swift */; };
+		08C80D962197A2EA008191AC /* ParameterList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08C80D952197A2EA008191AC /* ParameterList.swift */; };
 		08CD2CD21D77F70E00DBFA24 /* ImageReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CD2CD11D77F70E00DBFA24 /* ImageReference.swift */; };
 		08CD2CE01D78073100DBFA24 /* ImageReferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CD2CD71D78073100DBFA24 /* ImageReferenceTests.swift */; };
 		08CD2CE11D78073100DBFA24 /* NetworkMockObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CD2CD81D78073100DBFA24 /* NetworkMockObjects.swift */; };
@@ -198,6 +199,7 @@
 		08A0FABA1D87261300FEB43C /* YelpPhoneSearchParametersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YelpPhoneSearchParametersTests.swift; sourceTree = "<group>"; };
 		08A0FABC1D87283400FEB43C /* YelpV2PhoneSearchRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YelpV2PhoneSearchRequestTests.swift; sourceTree = "<group>"; };
 		08A0FABE1D872E7F00FEB43C /* YelpV2PhoneSearchResponseTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YelpV2PhoneSearchResponseTests.swift; sourceTree = "<group>"; };
+		08C80D952197A2EA008191AC /* ParameterList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterList.swift; sourceTree = "<group>"; };
 		08CD2CD11D77F70E00DBFA24 /* ImageReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageReference.swift; sourceTree = "<group>"; };
 		08CD2CD71D78073100DBFA24 /* ImageReferenceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageReferenceTests.swift; sourceTree = "<group>"; };
 		08CD2CD81D78073100DBFA24 /* NetworkMockObjects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkMockObjects.swift; sourceTree = "<group>"; };
@@ -419,6 +421,7 @@
 			isa = PBXGroup;
 			children = (
 				087A2FD71D9D85B0005AA466 /* Parameter.swift */,
+				08C80D952197A2EA008191AC /* ParameterList.swift */,
 			);
 			name = Parameters;
 			sourceTree = "<group>";
@@ -806,6 +809,7 @@
 				08E0F6811FBD64BC004C3D24 /* Logging.swift in Sources */,
 				083C5E711D772AC200132923 /* HTTPClient.swift in Sources */,
 				08A0FA9E1D861DE000FEB43C /* String+YAPI.swift in Sources */,
+				08C80D962197A2EA008191AC /* ParameterList.swift in Sources */,
 				088194071FC0D2650090E67C /* AssertOverride.swift in Sources */,
 				083C5E721D772AC200132923 /* Request.swift in Sources */,
 				087A2FD81D9D85B0005AA466 /* Parameter.swift in Sources */,

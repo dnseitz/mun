@@ -17,7 +17,7 @@ class MoonPhaseSearchRequest: Request {
   var oauthVersion: OAuthSwiftCredential.Version? = .oauth2
   var host: String = "api.aerisapi.com/"
   var path: String = "sunmoon/moonphases/search"
-  var parameters: [String : String] = [:]
+  var parameters: ParameterList = ParameterList()
   
   var requestMethod: OAuthSwiftHTTPRequest.Method = .GET
   
@@ -31,6 +31,7 @@ class MoonPhaseSearchRequest: Request {
     let currentTimeMinus6Hours = String(Int(currentSelectedDate.timeIntervalSince1970 - twelveHoursAsSeconds))
     let currentTimePlus6Hours = String(Int(currentSelectedDate.timeIntervalSince1970 + twelveHoursAsSeconds))
     let currentTimePlus30Days = String(Int(currentSelectedDate.timeIntervalSince1970 + thirtyDaysAsSeconds))
+    
     parameters["limit"] = "2"
     parameters["query"] = phaseChoice.queryParameter
     parameters["sort"] = phaseChoice.sortParameter

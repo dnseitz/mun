@@ -101,7 +101,9 @@ public protocol Request {
   var path: String { get }
   
   /// Query parameters to include in the request
-  var parameters: [String: String] { get }
+//  var parameters: [String: String] { get }
+//  var parameters: [Parameter] { get }
+  var parameters: ParameterList { get }
   
   /// The HTTP Method used for this request
   var requestMethod: OAuthSwiftHTTPRequest.Method { get }
@@ -184,7 +186,7 @@ fileprivate extension Request {
       guard
         let request = client.makeRequest("\(scheme)://\(self.host)\(self.path)",
                                          method: self.requestMethod,
-                                         parameters: self.parameters,
+                                         parameters: self.parameters.parameterDictionary,
                                          headers: nil,
                                          body: nil) else {
         return nil
@@ -198,9 +200,18 @@ fileprivate extension Request {
       components.host = self.host
       components.path = self.path
       components.port = self.port
-      components.queryItems = self.parameters.map { URLQueryItem(name: $0, value: $1) }
+      components.queryItems = self.parameters.parameterDictionary.map { URLQueryItem(name: $0, value: $1) }
       
       return components.url.map { URLRequest(url: $0) }
     }
+  }
+}
+
+fileprivate extension Array where Element == Parameter {
+  func toDictionary() -> [String: String] {
+    return reduce(into: [:], { accumulator, parameter in
+      assert(accumulator[parameter.key] == nil, "Parameters cannot have duplicate keys")
+      accumulator[parameter.key] = parameter.value
+    })
   }
 }
