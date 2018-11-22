@@ -34,10 +34,7 @@ final public class Cache<Stored: Cacheable> {
     self.cacheAccessQueue = DispatchQueue(label: "com.yapi.cache-access.\(identifier)-\(id)", attributes: .concurrent)
     id += 1
   }
-  
-  // TODO (dseitz): Uh... I think statics in Swift are automatically synchronized across
-  // threads... So I don't think we need any of these synchronization operations... Let's
-  // do some research
+
   public subscript(key: CacheKey) -> Stored? {
     get {
       var imageReference: Stored? = nil

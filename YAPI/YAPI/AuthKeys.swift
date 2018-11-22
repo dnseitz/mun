@@ -1,5 +1,5 @@
 //
-//  YelpAuthentication.swift
+//  AuthKeys.swift
 //  YAPI
 //
 //  Created by Daniel Seitz on 9/3/16.

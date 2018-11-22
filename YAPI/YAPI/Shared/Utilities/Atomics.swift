@@ -24,7 +24,7 @@ public struct Atomic<T> {
   }
   
   public func get() -> T {
-    return execute { return self.value }
+    return execute { self.value }
   }
   
   public mutating func swap(_ newValue: T) -> T {

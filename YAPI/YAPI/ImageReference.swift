@@ -11,30 +11,28 @@ import UIKit
 
 public typealias ImageLoadResult = Result<UIImage, ImageLoadError>
 
-/**
-    A class representing an image retrieved from a network source. After being loaded an ImageReference 
-    instance will contain a cachedImage property that allows you to access a copy of the image that was 
-    loaded from the network source.
- 
-    It's less safe to use this cachedImage property than it is to just load the ImageReference again 
-    through an image loader, so it is preferred to load and use the image returned by that. Be aware that 
-    every time you access a cached image either through a load or the cachedImage property you are 
-    recieving a **copy**, so each image can be scaled or modified independently of any others if they need 
-    to be used more than once.
- 
-    - Usage:
-    ```
-      let imageReference = ImageReference(withURL: NSURL("some.image.com/path/to/image.jpg"))
- 
-      // This is an asynchronous operation, don't expect to have the cached image 
-      // available after calling this
-      imageReference.load() { result in
-        // Do something with the result here
-      }
- 
-      imageReference.cachedImage // COULD BE NIL HERE EVEN IF THE IMAGE WILL BE SUCCESSFULLY LOADED
-    ```
- */
+/// A class representing an image retrieved from a network source. After being loaded an ImageReference
+/// instance will contain a cachedImage property that allows you to access a copy of the image that was
+/// loaded from the network source.
+///
+/// It's less safe to use this cachedImage property than it is to just load the ImageReference again
+/// through an image loader, so it is preferred to load and use the image returned by that. Be aware that
+/// every time you access a cached image either through a load or the cachedImage property you are
+/// recieving a **copy**, so each image can be scaled or modified independently of any others if they need
+/// to be used more than once.
+///
+/// - Usage:
+/// ```
+///   let imageReference = ImageReference(withURL: NSURL("some.image.com/path/to/image.jpg"))
+///
+///   // This is an asynchronous operation, don't expect to have the cached image
+///   // available after calling this
+///   imageReference.load() { result in
+///     // Do something with the result here
+///   }
+///
+///   imageReference.cachedImage // COULD BE NIL HERE EVEN IF THE IMAGE WILL BE SUCCESSFULLY LOADED
+/// ```
 open class ImageReference: Decodable {
   public static let globalCache: Cache<ImageReference> = Cache(identifier: "ImageCache")
 
@@ -73,15 +71,14 @@ open class ImageReference: Decodable {
   /// The URL that this image reference points to
   public let url: URL
   
-  /**
-      Initialize a new ImageReference with the specified url. Two ImageReferences initialized with the same
-      url will functionally be the same image reference.
-   
-      - Parameter url: The url to retrieve the image from
-      - Parameter session: The session to use to make network requests, generally keep this as default
-   
-      - Returns: An ImageLoader that is ready to load an image from the url
-   */
+  /// Initialize a new ImageReference with the specified url. Two ImageReferences initialized with the same
+  /// url will functionally be the same image reference.
+  ///
+  /// - Parameter url: The url to retrieve the image from
+  /// - Parameter cache: The image cache to use, defaults to the global cache
+  /// - Parameter session: The session to use to make network requests, generally keep this as default
+  ///
+  /// - Returns: An ImageLoader that is ready to load an image from the url
   public init(from url: URL,
               using cache: Cache<ImageReference> = ImageReference.globalCache,
               session: HTTPClient = HTTPClient.sharedSession) {
@@ -94,14 +91,13 @@ open class ImageReference: Decodable {
                                          attributes: .concurrent)
   }
   
-  /**
-      Initialize a new ImageReference with the specified URL string.
-   
-      - Parameter string: The string representation of a URL to load the image from
-      - Parameter session: The session to use to make network requests, generally keep this as default
-   
-      - Returns: An ImageLoader that is ready to load an image from the URL or nil if the URL was malformed
-   */
+  /// Initialize a new ImageReference with the specified URL string.
+  ///
+  /// - Parameter string: The string representation of a URL to load the image from
+  /// - Parameter cache: The image cache to use, defaults to the global cache
+  /// - Parameter session: The session to use to make network requests, generally keep this as default
+  ///
+  /// - Returns: An ImageLoader that is ready to load an image from the URL or nil if the URL was malformed
   public convenience init?(from string: String,
                            using cache: Cache<ImageReference> = ImageReference.globalCache,
                            session: HTTPClient = HTTPClient.sharedSession) {
@@ -116,22 +112,19 @@ open class ImageReference: Decodable {
     self.init(from: url)
   }
   
-  /**
-      Prefetch an image in the background without doing anything with the image once it's loaded
-      This is useful for when you want to start loading an image before you need it
-   */
+  /// Prefetch an image in the background without doing anything with the image once it's loaded
+  /// This is useful for when you want to start loading an image before you need it
   public func prefetch() {
     // Start a load
     load() { _ in /* Do nothing with result */ }
   }
   
-  /**
-      Load an image in the background and pass it to the completion handler once finished. This can be 
-      called multiple times to retrieve the same image at different scales. Each call will return a new instance of a UIImage
-   
-      - Parameter scale: The scale factor to apply to the image
-      - Parameter completionHandler: The handler to call once the image load has completed.
-   */
+  /// Load an image in the background and pass it to the completion handler once finished. This
+  /// can be called multiple times to retrieve the same image at different scales. Each call
+  /// will return a new instance of a UIImage
+  ///
+  /// - Parameter scale: The scale factor to apply to the image
+  /// - Parameter completionHandler: The handler to call once the image load has completed.
   public func load(withScale scale: CGFloat = 1.0,
                    completionHandler handler: @escaping (ImageLoadResult) -> Void) {
     

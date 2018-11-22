@@ -101,8 +101,6 @@ public protocol Request {
   var path: String { get }
   
   /// Query parameters to include in the request
-//  var parameters: [String: String] { get }
-//  var parameters: [Parameter] { get }
   var parameters: ParameterList { get }
   
   /// The HTTP Method used for this request
@@ -167,7 +165,7 @@ internal extension Request {
       }
       
       guard let jsonData = data else {
-        result = .err(YelpResponseError.noDataRecieved)
+        result = .err(ResponseError.noDataRecieved)
         return
       }
       
@@ -180,9 +178,7 @@ fileprivate extension Request {
   func generateURLRequest() -> URLRequest? {
     
     if let client = oAuthClient(for: oauthVersion) {
-      // HACK - only use port on custom server
       let scheme = "https"
-//      let port = self.port != nil ? ":\(self.port!)" : ""
       guard
         let request = client.makeRequest("\(scheme)://\(self.host)\(self.path)",
                                          method: self.requestMethod,

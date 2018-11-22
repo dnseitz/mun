@@ -32,41 +32,12 @@ public enum RequestError: APIError {
   }
 }
 
-/**
-    Errors that can return from a Yelp response and if there are any issues generating the response
- */
-public enum YelpResponseError: APIError {
-  /// An unknown error occurred with the Yelp service
+/// Errors that can return from a response
+public enum ResponseError: APIError {
+  /// An unknown error occurred with the service
   case unknownError(cause: Error?)
-  /// An internal service error occurred with the Yelp service
-  case internalError
-  /// The number of requests for the api used has exceeded its limit
-  case exceededRequests
-  /// A required parameter was missing, see the wrapped string for the parameter
-  case missingParameter(field: String)
-  /// A parameter was invalid, see the wrapped string for the parameter
-  case invalidParameter(field: String)
-  /// Yelp is not available for the requested location
-  case unavailableForLocation
-  /// The search area is too large
-  case areaTooLarge
-  /// The Yelp service was unable to disambiguate the search location
-  case multipleLocations
-  /// Information for a specific business is unavailable
-  case businessUnavailable
   /// No data was recieved in the response
   case noDataRecieved
-  /// Data was recieved, but it couldn't be parsed as JSON
-  case failedToParse(cause: ParseError)
-  /// Resource could not be found
-  case notFound
-  /// An access token must be supplied in order to use this endpoint,
-  /// make sure you have authenticated through the YelpAPIFactory
-  case tokenMissing
-  /// Invalid combination of client_id and client_secret.
-  case badAuth
-  /// Too many requests were made concurrently
-  case tooManyRequestsPerSecond
   
   public var description: String {
     switch self {
@@ -79,34 +50,8 @@ public enum YelpResponseError: APIError {
         causeDescription = ""
       }
       return "An unknown error has occurred" + causeDescription
-    case .internalError:
-      return "An internal Yelp service error has occurred"
-    case .exceededRequests:
-      return "The number of requests for the api used has exceeded its limit"
-    case let .missingParameter(field: field):
-      return "A required parameter was missing: '\(field)'"
-    case let .invalidParameter(field: field):
-      return "A parameter was invalid: '\(field)'"
-    case .unavailableForLocation:
-      return "Yelp is unavailable in the requested location"
-    case .areaTooLarge:
-      return "The search area is too large, maximum area is 2,500 square miles"
-    case .multipleLocations:
-      return "Yelp is unable to disambiguate the search location"
-    case .businessUnavailable:
-      return "Information for that business is unavailable"
     case .noDataRecieved:
       return "No data was recieved in the response"
-    case .failedToParse(cause: let cause):
-      return "The data recieved was unable to be parsed: '\(cause)'"
-    case .notFound:
-      return "The resource could not be found."
-    case .tokenMissing:
-      return "An access token must be supplied in order to use this endpoint, make sure you have authenticated through the APIFactory"
-    case .badAuth:
-      return "Invalid combination of client_id and client_secret."
-    case .tooManyRequestsPerSecond:
-      return "Too many requests were made concurrently"
     }
   }
 }
@@ -115,6 +60,9 @@ public enum ParseError: APIError {
   
   // The data is not in JSON format
   case invalidJson(cause: Error)
+  
+  /// The data was not an array or a dictionary
+  case jsonNotArrayOrDictionary
   
   // A required field was missing in the response
   case missing(field: String)
@@ -132,6 +80,8 @@ public enum ParseError: APIError {
     switch self {
     case .invalidJson(cause: let cause):
       return "The data is not in JSON format: <\(cause)>"
+    case .jsonNotArrayOrDictionary:
+      return "The data was not a JSON array or dictionary, we do not support this"
     case .missing(field: let field):
       return "A required field <\(field)> was missing in the response"
     case .invalid(field: let field, value: let value):
